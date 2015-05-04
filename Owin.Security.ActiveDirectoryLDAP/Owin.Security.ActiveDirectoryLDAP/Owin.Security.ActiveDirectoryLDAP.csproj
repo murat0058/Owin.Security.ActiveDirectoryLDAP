@@ -69,6 +69,7 @@
     <Compile Include="LDAPAuthenticationMiddleware.cs" />
     <Compile Include="LDAPAuthenticationOptions.cs" />
     <Compile Include="LDAPClaimTypes.cs" />
+    <Compile Include="PermittedLogonTimes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Provider\ILDAPAuthenticationProvider.cs" />
     <Compile Include="Provider\LDAPApplyRedirectContext.cs" />

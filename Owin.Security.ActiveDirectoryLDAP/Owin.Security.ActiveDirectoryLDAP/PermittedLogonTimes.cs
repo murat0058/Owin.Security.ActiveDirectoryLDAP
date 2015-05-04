@@ -1,33 +1,90 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Owin.Security.ActiveDirectoryLDAP
 {
-    public class PermittedLogonTimes
+    public static class Test
     {
-        ///// <summary>
-        ///// Calculates the byte mask for Active Directory Logon Times
-        ///// </summary>
-        ///// <param name="logonTimes">List of LogonTime objects to signify allows times</param>
-        ///// <returns>Active directory byte mask</returns>
-        //public static byte[] GetByteMask(List<LogonTime> logonTimes)
-        //{
-        //    var hours = InitializeTimeArray();
-        //
-        //    foreach (var time in logonTimes)
-        //    {
-        //        // skip a block to go to the 24 block set that represents the targetted day
-        //        var dayOffset = (int)time.DayOfWeek * 24;
-        //
-        //        // mark the hours
-        //        MarkHours(hours, time);
-        //    }
-        //
-        //    // generate a byte [] for AD
-        //    return ConvertToAD(hours);
-        //}
+        public static void derp(byte[] times)
+        {
+            if (times == null)
+                return;
 
+            Array.Resize<byte>(ref times, 3 * 7);//Make sure the array has 3 bytes for every day of the week.
+            for (var i = 0; i < 3 * 7; i += 3)
+            {
+                //0, 3, 6, 9, 12, 15, 18, 21
+                var day = (DayOfWeek)(i / 3);
+                
+                byte[] bytes = { times[i + 0], times[i + 1], times[i + 2], 0 };
+                if (!BitConverter.IsLittleEndian)//opposite?
+                    Array.Reverse(bytes);
+                var bits = BitConverter.ToInt32(bytes, 0);
+
+                if (bits == 0)//nothing on this day
+                    continue;
+
+                if ((bits & 1 << 0) > 0)//12am
+                    Debug.WriteLine(day.ToString() + " at 12am");
+                if ((bits & 1 << 1) > 0)//1am
+                    Debug.WriteLine(day.ToString() + " at 1am");
+                if ((bits & 1 << 2) > 0)//2am
+                    Debug.WriteLine(day.ToString() + " at 2am");
+                if ((bits & 1 << 3) > 0)//3am
+                    Debug.WriteLine(day.ToString() + " at 3am");
+                if ((bits & 1 << 4) > 0)//4am
+                    Debug.WriteLine(day.ToString() + " at 4am");
+                if ((bits & 1 << 5) > 0)//5am
+                    Debug.WriteLine(day.ToString() + " at 5am");
+                if ((bits & 1 << 6) > 0)//6am
+                    Debug.WriteLine(day.ToString() + " at 6am");
+                if ((bits & 1 << 7) > 0)//7am
+                    Debug.WriteLine(day.ToString() + " at 7am");
+                if ((bits & 1 << 8) > 0)//8am
+                    Debug.WriteLine(day.ToString() + " at 8am");
+                if ((bits & 1 << 9) > 0)//9am
+                    Debug.WriteLine(day.ToString() + " at 9am");
+                if ((bits & 1 << 10) > 0)//10am
+                    Debug.WriteLine(day.ToString() + " at 10am");
+                if ((bits & 1 << 11) > 0)//11am
+                    Debug.WriteLine(day.ToString() + " at 11am");
+                if ((bits & 1 << 12) > 0)//12pm
+                    Debug.WriteLine(day.ToString() + " at 12pm");
+                if ((bits & 1 << 13) > 0)//1pm
+                    Debug.WriteLine(day.ToString() + " at 1pm");
+                if ((bits & 1 << 14) > 0)//2pm
+                    Debug.WriteLine(day.ToString() + " at 2pm");
+                if ((bits & 1 << 15) > 0)//3pm
+                    Debug.WriteLine(day.ToString() + " at 3pm");
+                if ((bits & 1 << 16) > 0)//4pm
+                    Debug.WriteLine(day.ToString() + " at 4pm");
+                if ((bits & 1 << 17) > 0)//5pm
+                    Debug.WriteLine(day.ToString() + " at 5pm");
+                if ((bits & 1 << 18) > 0)//6pm
+                    Debug.WriteLine(day.ToString() + " at 6pm");
+                if ((bits & 1 << 19) > 0)//7pm
+                    Debug.WriteLine(day.ToString() + " at 7pm");
+                if ((bits & 1 << 20) > 0)//8pm
+                    Debug.WriteLine(day.ToString() + " at 8pm");
+                if ((bits & 1 << 21) > 0)//9pm
+                    Debug.WriteLine(day.ToString() + " at 9pm");
+                if ((bits & 1 << 22) > 0)//10pm
+                    Debug.WriteLine(day.ToString() + " at 10pm");
+                if ((bits & 1 << 23) > 0)//11pm
+                    Debug.WriteLine(day.ToString() + " at 11pm");
+
+
+
+            }
+
+            var o = 3;
+        }
+    }
+
+    public static class PermittedLogonTimes
+    {
         /// <summary>
         /// Calculate the logon times based on an Active Directory byte mask
         /// </summary>
@@ -48,6 +105,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
         public static List<LogonTime> GetLogonTimes(byte[] byteMask, TimeZoneInfo timeZone)
         {
             var hours = MarkHours(byteMask);
+            timeZone = TimeZoneInfo.Utc;
 
             return ConvertToLogonTime(hours, (timeZone.BaseUtcOffset.Hours));
         }
@@ -57,107 +115,15 @@ namespace Owin.Security.ActiveDirectoryLDAP
         /// </summary>
         /// <remarks>
         /// Each slot represents an hour of a day.  Ex. [0]=sunday 12am GMT, [1]=sunday 1am GMT ...
-        /// 
         /// During calculations based on time offset, hours will shift, Ex. [0]=sunday 1am GMT-1, [1]=sunday 2am GMT-1 ...
-        /// 
         /// PST Calcuation (GMT -8): [9]=sunday 8am, [1]=sunday 9am
-        /// 
         /// All values will be stored with an offset relative to GMT
         /// </remarks>
         /// <returns></returns>
         private static bool[] InitializeTimeArray()
         {
-            var array = new bool[168];
-
-            for (var i = 0; i < array.Count(); i++)
-            {
-                array[i] = false;
-            }
-
-            return array;
+            return Enumerable.Repeat<bool>(false, 24 * 7).ToArray();
         }
-
-        ///// <summary>
-        ///// Mark the hours that have been selected
-        ///// </summary>
-        ///// <param name="hours"></param>
-        ///// <param name="logonTime"></param>
-        //private static void MarkHours(bool[] hours, LogonTime logonTime)
-        //{
-        //    // hour offset, from GMT
-        //    var offset = logonTime.TimeZoneOffSet;
-        //    // day offset in the array
-        //    var dayOffset = (int)logonTime.DayOfWeek * 24;
-        //
-        //    // iterate through each of the hours of the day
-        //    for (int i = 0; i < 24; i++)
-        //    {
-        //        // is the hour between what we're looking for
-        //        if (logonTime.BeginTime.Hour <= i && i < logonTime.EndTime.Hour)
-        //        {
-        //            // figure out which location to mark
-        //            var index = dayOffset + i + offset;
-        //
-        //            if (index < 0)
-        //            {
-        //                index = hours.Count() + index;
-        //            }
-        //            else if (index > hours.Count())
-        //            {
-        //                index = index - hours.Count();
-        //            }
-        //
-        //            hours[index] = true;
-        //        }
-        //    }
-        //
-        //}
-
-        ///// <summary>
-        ///// Convert individual blocks into AD
-        ///// </summary>
-        ///// <param name="hours"></param>
-        ///// <returns></returns>
-        //private static byte[] ConvertBlockToAD(bool[] hours)
-        //{
-        //    var set = new int[3];
-        //
-        //    for (var i = 0; i < 24; i++)
-        //    {
-        //        if (hours[i])
-        //        {
-        //            var index = (int)Math.Floor((decimal)(i) / 8);
-        //            set[index] += CalculateLocationValue(i);
-        //        }
-        //
-        //    }
-        //
-        //    return new byte[3] { Convert.ToByte(set[0]), Convert.ToByte(set[1]), Convert.ToByte(set[2]) };
-        //}
-
-        ///// <summary>
-        ///// Calculate individual byte mask locations
-        ///// </summary>
-        ///// <param name="location"></param>
-        ///// <returns></returns>
-        //private static int CalculateLocationValue(int location)
-        //{
-        //    location = location % 8;
-        //
-        //    switch (location)
-        //    {
-        //        case 0: return 1;
-        //        case 1: return 2;
-        //        case 2: return 4;
-        //        case 3: return 8;
-        //        case 4: return 16;
-        //        case 5: return 32;
-        //        case 6: return 64;
-        //        case 7: return 128;
-        //    }
-        //
-        //    return 0;
-        //}
 
         /// <summary>
         /// Fills in an hour array based on bytemask
@@ -183,48 +149,25 @@ namespace Owin.Security.ActiveDirectoryLDAP
         /// <param name="index"></param>
         private static void ParseBlock(byte block, bool[] hours, int index)
         {
-            var value = (int)block;
+            var value = block;
+            //var value = (int)block;
 
-            if (value >= 128)
-            {
+            if ((value & 1 << 7) > 0)
                 hours[index + 7] = true;
-                value -= 128;
-            }
-            if (value >= 64)
-            {
+            if ((value & 1 << 6) > 0)
                 hours[index + 6] = true;
-                value -= 64;
-            }
-            if (value >= 32)
-            {
+            if ((value & 1 << 5) > 0)
                 hours[index + 5] = true;
-                value -= 32;
-            }
-            if (value >= 16)
-            {
+            if ((value & 1 << 4) > 0)
                 hours[index + 4] = true;
-                value -= 16;
-            }
-            if (value >= 8)
-            {
+            if ((value & 1 << 3) > 0)
                 hours[index + 3] = true;
-                value -= 8;
-            }
-            if (value >= 4)
-            {
+            if ((value & 1 << 2) > 0)
                 hours[index + 2] = true;
-                value -= 4;
-            }
-            if (value >= 2)
-            {
+            if ((value & 1 << 1) > 0)
                 hours[index + 1] = true;
-                value -= 2;
-            }
-            if (value >= 1)
-            {
-                hours[index] = true;
-                value -= 1;
-            }
+            if ((value & 1 << 0) > 0)
+                hours[index + 0] = true;
         }
 
         private static List<LogonTime> ConvertToLogonTime(bool[] hours, int offset)
@@ -262,7 +205,6 @@ namespace Owin.Security.ActiveDirectoryLDAP
                     begin = null;
                     end = null;
                 }
-
             }
 
             return ltimes;
