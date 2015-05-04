@@ -18,6 +18,10 @@ namespace Host
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+
+            //byte[] test = { 0, 0, 0, 0, 224, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            //PermittedLogonTimes.GetLogonTimes(test);
+            //Test.derp(test);
         }
 
         private static IList<DomainCredential> s_DomainCredentials { get; set; }
