@@ -257,6 +257,8 @@ namespace Owin.Security.ActiveDirectoryLDAP
             if (Options.CallbackPath.HasValue && Options.CallbackPath != (Request.PathBase + Request.Path))
                 return null;
 
+            //Redirect back to login if fail beyond this point?
+
             if (String.Equals(Request.Method, "POST", StringComparison.OrdinalIgnoreCase) && Request.Body.CanRead)
             {
                 // May have media/type; charset=utf-8, allow partial match.
@@ -285,8 +287,10 @@ namespace Owin.Security.ActiveDirectoryLDAP
                     var username = login.Username;
                     var password = form.Get(Options.PasswordKey);
                     var domain = login.Domain ?? form.Get(Options.DomainKey);
-                    var state = form.Get(Options.StateKey) ?? Request.Query[Options.StateKey] ?? Request.Cookies[Options.StateKey];//TODO: Check referer header as last ditch?
-                    //Check the UseStateCookie option instead of trying all possible locations?
+
+                    var state = Options.UseStateCookie
+                        ? Request.Cookies[Options.StateKey]//Check form/query if not present?
+                        : form.Get(Options.StateKey) ?? Request.Query[Options.StateKey];//TODO: Check referer header as last ditch?
 
                     ClaimsIdentity identity;
                     if (TryValidateCredentials(domain, username, password, out identity))
