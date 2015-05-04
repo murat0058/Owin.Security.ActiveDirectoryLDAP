@@ -13,6 +13,8 @@ namespace Owin.Security.ActiveDirectoryLDAP
             var builder = new DbConnectionStringBuilder();
             builder.ConnectionString = connectionString;
 
+            Name = name;
+
             object value;
             if (builder.TryGetValue("Container", out value))
                 Container = value as string;

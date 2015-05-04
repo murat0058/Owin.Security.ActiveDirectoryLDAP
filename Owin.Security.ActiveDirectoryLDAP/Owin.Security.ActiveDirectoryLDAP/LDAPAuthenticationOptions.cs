@@ -102,7 +102,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
 
         internal PrincipalContext GetContext(string domain)
         {
-            var credentials = Domains.FirstOrDefault(_ => _.Name.Equals(domain, StringComparison.OrdinalIgnoreCase));
+            var credentials = Domains.Where(_ => !String.IsNullOrEmpty(_.Name)).FirstOrDefault(_ => _.Name.Equals(domain, StringComparison.OrdinalIgnoreCase));
             if (credentials == null)
                 return null;
             return credentials.GetContext();

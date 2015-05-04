@@ -77,10 +77,10 @@ namespace Owin.Security.ActiveDirectoryLDAP
         {
             return new Claim(ClaimTypes.GroupSid, Sid);
 
-            var serialized = serializationFormat == SerializationFormat.Json
-                ? this.ToJson()
-                : this.ToXml();
-            return new Claim(LDAPClaimTypes.ActiveDirectoryGroup, serialized);
+            //var serialized = serializationFormat == SerializationFormat.Json
+            //    ? this.ToJson()
+            //    : this.ToXml();
+            //return new Claim(LDAPClaimTypes.ActiveDirectoryGroup, serialized);
         }
 
         public string ToJson()
