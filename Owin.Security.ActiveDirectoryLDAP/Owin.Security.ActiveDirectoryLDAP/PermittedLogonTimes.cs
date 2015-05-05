@@ -17,7 +17,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
             {
                 //0, 3, 6, 9, 12, 15, 18, 21
                 var day = (DayOfWeek)(i / 3);
-                
+
                 byte[] bytes = { times[i + 0], times[i + 1], times[i + 2], 0 };
                 if (!BitConverter.IsLittleEndian)//opposite?
                     Array.Reverse(bytes);
@@ -74,9 +74,6 @@ namespace Owin.Security.ActiveDirectoryLDAP
                     Debug.WriteLine(day.ToString() + " at 10pm");
                 if ((bits & 1 << 23) > 0)//11pm
                     Debug.WriteLine(day.ToString() + " at 11pm");
-
-
-
             }
 
             var o = 3;
