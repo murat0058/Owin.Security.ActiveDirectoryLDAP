@@ -1,7 +1,7 @@
 Apache License
 ==============
 
-_Version 2.0, January 2004_
+_Version 2.0, January 2004_  
 _http://www.apache.org/licenses/_
 
 TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
@@ -156,4 +156,4 @@ indemnify, defend, and hold each Contributor harmless for any liability incurred
 by, or claims asserted against, such Contributor by reason of your accepting any
 such warranty or additional liability.
 
-END OF TERMS AND CONDITIONS
+_END OF TERMS AND CONDITIONS_
