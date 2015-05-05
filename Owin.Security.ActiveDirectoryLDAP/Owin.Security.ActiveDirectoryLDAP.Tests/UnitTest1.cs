@@ -11,7 +11,7 @@ namespace Owin.Security.ActiveDirectoryLDAP.Tests
         {
             byte[] test = { 0, 0, 0, 0, 224, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
             //PermittedLogonTimes.GetLogonTimes(test);
-            Test.derp(test);
+            LogonTimes.PermittedLogonTimes(test);
         }
     }
 }
