@@ -22,6 +22,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
         public const string LastPasswordSet = ClaimTypeNamespace + "/lastpasswordsSet";
         public const string LockedOut = ClaimTypeNamespace + "/lockedout";
         public const string MiddleName = ClaimTypeNamespace + "/middlename";
+        public const string PermittedLogonTimes = ClaimTypeNamespace + "permittedlogontimes";
         public const string SamAccountName = ClaimTypeNamespace + "/samaccountname";
         public const string SmartcardLogonRequired = ClaimTypeNamespace + "/smartcardlogonrequired";//Require client certificate auth?
         public const string UserPrincipalName = ClaimTypeNamespace + "/userprincipalname";

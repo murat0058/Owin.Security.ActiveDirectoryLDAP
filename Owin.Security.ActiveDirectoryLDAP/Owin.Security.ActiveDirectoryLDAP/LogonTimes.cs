@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
+using System.Security.Claims;
+using System.Text;
 
 namespace Owin.Security.ActiveDirectoryLDAP
 {
@@ -77,6 +81,63 @@ namespace Owin.Security.ActiveDirectoryLDAP
             }
 
             return logonTimes;
+        }
+
+        public static Group FromClaim(Claim claim)
+        {
+            //return null instead of throwing?
+            if (claim.Type != LDAPClaimTypes.ActiveDirectoryGroup)
+                throw new ArgumentException("Invalid claim type.", "claim");
+            //not a great thing to do
+            if (claim.Value.StartsWith("{"))
+                return FromJson(claim.Value);
+            if (claim.Value.StartsWith("<"))
+                return FromXml(claim.Value);
+            throw new FormatException("Claim value format could not be detected.");
+        }
+
+        public static Group FromJson(string json)
+        {
+            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(json)))
+            {
+                stream.Position = 0;
+                return new DataContractJsonSerializer(typeof(Group)).ReadObject(stream) as Group;
+            }
+        }
+
+        public static Group FromXml(string xml)
+        {
+            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(xml)))
+            {
+                stream.Position = 0;
+                return new DataContractSerializer(typeof(Group)).ReadObject(stream) as Group;
+            }
+        }
+
+        public Claim ToClaim(SerializationFormat serializationFormat = SerializationFormat.Json)
+        {
+            var serialized = serializationFormat == SerializationFormat.Json
+                ? this.ToJson()
+                : this.ToXml();
+            return new Claim(LDAPClaimTypes.PermittedLogonTimes, serialized);
+        }
+
+        public string ToJson()
+        {
+            using (var stream = new MemoryStream())
+            {
+                new DataContractJsonSerializer(typeof(Group)).WriteObject(stream, this);
+                return Encoding.UTF8.GetString(stream.ToArray());
+            }
+        }
+
+        public string ToXml()
+        {
+            using (var stream = new MemoryStream())
+            {
+                new DataContractSerializer(typeof(Group)).WriteObject(stream, this);
+                return Encoding.UTF8.GetString(stream.ToArray());
+            }
         }
     }
 

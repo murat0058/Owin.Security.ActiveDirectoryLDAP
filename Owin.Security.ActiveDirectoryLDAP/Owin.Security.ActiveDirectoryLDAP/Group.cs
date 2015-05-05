@@ -17,7 +17,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
             Description = group.Description;
             DisplayName = group.DisplayName;
             DistinguishedName = group.DistinguishedName;
-            //Guid = group.Guid.Value.ToString();
+            Guid = group.Guid.Value.ToString();
             Name = group.Name;
             SamAccountName = group.SamAccountName;
             Sid = group.Sid.Value;
@@ -33,8 +33,8 @@ namespace Owin.Security.ActiveDirectoryLDAP
         public string DisplayName { get; private set; }
         [DataMember]
         public string DistinguishedName { get; private set; }
-        //[DataMember]
-        //public string Guid { get; private set; }
+        [DataMember]
+        public string Guid { get; private set; }
         [DataMember]
         public string Name { get; private set; }
         [DataMember]

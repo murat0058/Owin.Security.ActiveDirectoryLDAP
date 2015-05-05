@@ -105,6 +105,8 @@ namespace Owin.Security.ActiveDirectoryLDAP
                 identity.AddClaim(new Claim(LDAPClaimTypes.UserPrincipalName, user.UserPrincipalName));
             if (user.VoiceTelephoneNumber != null)
                 identity.AddClaim(new Claim(LDAPClaimTypes.VoicePhone, user.VoiceTelephoneNumber));//WorkPhone? Format? e.g. https://en.wikipedia.org/wiki/E.123 or https://en.wikipedia.org/wiki/Microsoft_telephone_number_format
+            if (user.PermittedLogonTimes != null)
+                identity.AddClaim(LogonTimes.PermittedLogonTimes(user.PermittedLogonTimes).ToClaim());
 
             return identity;
         }

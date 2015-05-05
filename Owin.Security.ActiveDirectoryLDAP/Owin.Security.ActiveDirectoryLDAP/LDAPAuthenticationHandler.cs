@@ -235,6 +235,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
 
                     //Lookup and statically store security group name/sid/etc at owin startup time (or with a method)?
                     //If we use an attribute to determine the group(s) a controller method uses, then it would require a code change (and thus restart), so it should work fine.
+                    //Or would it be better to cache groups as they are found by the user?
                     //using (var group = new GroupPrincipal(context) { IsSecurityGroup = true })
                     //using (var search = new PrincipalSearcher(group))
                     //{
