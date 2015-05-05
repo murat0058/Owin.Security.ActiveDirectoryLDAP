@@ -233,6 +233,14 @@ namespace Owin.Security.ActiveDirectoryLDAP
                     if (context == null || !context.ValidateCredentials(account, password, context.Options))
                         return false;
 
+                    //Lookup and statically store security group name/sid/etc at owin startup time (or with a method)?
+                    //If we use an attribute to determine the group(s) a controller method uses, then it would require a code change (and thus restart), so it should work fine.
+                    //using (var group = new GroupPrincipal(context) { IsSecurityGroup = true })
+                    //using (var search = new PrincipalSearcher(group))
+                    //{
+                    //    var test = search.FindAll();
+                    //}
+
                     using (var user = UserPrincipal.FindByIdentity(context, IdentityType.SamAccountName, account))//On refresh lookup by Sid?/Guid IdentityType.Guid
                     {
                         //claim issuer? "AD AUTHORITY"? context.ConnectedServer?
