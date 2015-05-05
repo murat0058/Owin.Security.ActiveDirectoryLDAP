@@ -19,7 +19,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
                 var day = (DayOfWeek)(i / 3);
 
                 byte[] bytes = { times[i + 0], times[i + 1], times[i + 2], 0 };
-                if (!BitConverter.IsLittleEndian)//opposite?
+                if (!BitConverter.IsLittleEndian)
                     Array.Reverse(bytes);
                 var bits = BitConverter.ToInt32(bytes, 0);
 
