@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Per the Apache License, Section 4b, this file has been modified from its original version for use in this library.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
+using System;
 using System.Threading.Tasks;
 using Microsoft.Owin;
 using Microsoft.Owin.Security;
@@ -8,7 +10,6 @@ using Microsoft.Owin.Security.Infrastructure;
 
 namespace Owin.Security.ActiveDirectoryLDAP
 {
-    // One instance is created when the application starts.
     public class LDAPAuthenticationMiddleware : AuthenticationMiddleware<LDAPAuthenticationOptions>
     {
         public LDAPAuthenticationMiddleware(OwinMiddleware next, IAppBuilder app, LDAPAuthenticationOptions options)
@@ -32,7 +33,6 @@ namespace Owin.Security.ActiveDirectoryLDAP
             return base.Invoke(context);
         }
 
-        // Called for each request, to create a handler for each request.
         protected override AuthenticationHandler<LDAPAuthenticationOptions> CreateHandler()
         {
             return new LDAPAuthenticationHandler();

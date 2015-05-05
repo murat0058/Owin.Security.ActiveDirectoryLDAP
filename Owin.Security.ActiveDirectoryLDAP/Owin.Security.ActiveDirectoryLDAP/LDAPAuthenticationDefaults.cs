@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Per the Apache License, Section 4b, this file has been modified from its original version for use in this library.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
+using System;
 
 namespace Owin.Security.ActiveDirectoryLDAP
 {
