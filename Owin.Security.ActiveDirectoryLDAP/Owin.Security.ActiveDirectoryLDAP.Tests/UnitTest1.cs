@@ -9,6 +9,9 @@ namespace Owin.Security.ActiveDirectoryLDAP.Tests
         [TestMethod]
         public void TestMethod1()
         {
+            byte[] test = { 0, 0, 0, 0, 224, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            //PermittedLogonTimes.GetLogonTimes(test);
+            Test.derp(test);
         }
     }
 }

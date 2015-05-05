@@ -5,23 +5,70 @@ using System.Linq;
 
 namespace Owin.Security.ActiveDirectoryLDAP
 {
+    //Not sure if this applies to our return values
+    //https://msdn.microsoft.com/en-us/library/aa394221%28v=vs.85%29.aspx #LogonHours
+    //PermittedLogonTimes are stored as utc
+    //Each bit represents a UnitsPerWeek unit (can this ever be not-hours on our return? if so how can we tell what it is)
+    //https://msdn.microsoft.com/en-us/library/cc245621.aspx
+
+
+    public class LogonTime2
+    {
+        public DayOfWeek DayOfWeek { get; set; }
+        public TimeZone TimeZone { get; set; }
+
+        public LogonTime2()
+        {
+            TimeZone = TimeZone.CurrentTimeZone;//default to utc?
+        }
+
+
+
+
+
+
+        public DateTime NextLogonTime(DateTime current)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool CanLogon(DateTime current)
+        {
+            throw new NotImplementedException();
+        }
+
+
+
+
+    }
+
     public static class Test
     {
         public static void derp(byte[] times)
         {
             if (times == null)
-                return;
+                return;//All?
 
-            Array.Resize<byte>(ref times, 3 * 7);//Make sure the array has 3 bytes for every day of the week.
+            //I'm not sure if this can be anything but hours on a UserPrincipal.PermittedLogonTimes
+            //or if this is even a reliable way to tell, can we get the actual UnitsPerWeek from someplace?
+            //if (times.Length == 1)// (7*1)/8
+            //    ;//7 bits, each bit is a day UnitsPerWeek, 00:00:00 to 23:59:59
+            //if (times.Length == 21)// (7*24)/8
+            //    ;//168 bits, each bit is an hour UnitsPerWeek, 00:00 to 59:59
+            //if (times.Length == 1260)// (7*24*60)/8
+            //    ;//10080 bits, each bit is a minute UnitsPerWeek, 00 to 59
+
+            //Each day gets 3 bytes of hour flags, make sure the array is long enough to loop through all of them.
+            Array.Resize<byte>(ref times, 3 * 7);
             for (var i = 0; i < 3 * 7; i += 3)
             {
                 //0, 3, 6, 9, 12, 15, 18, 21
                 var day = (DayOfWeek)(i / 3);
 
-                byte[] bytes = { times[i + 0], times[i + 1], times[i + 2], 0 };
-                if (!BitConverter.IsLittleEndian)
+                byte[] bytes = { times[i + 0], times[i + 1], times[i + 2], 0 };//Aggregate all of the hour flags.
+                if (!BitConverter.IsLittleEndian)//Make sure they bytes are in the proper order to make into one large set of flags.
                     Array.Reverse(bytes);
-                var bits = BitConverter.ToInt32(bytes, 0);
+                var bits = BitConverter.ToInt32(bytes, 0);//Convert the 3 bytes of flags into one set of flags.
 
                 if (bits == 0)//nothing on this day
                     continue;
