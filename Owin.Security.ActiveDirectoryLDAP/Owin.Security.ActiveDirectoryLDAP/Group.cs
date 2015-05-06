@@ -17,7 +17,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
             Description = group.Description;
             DisplayName = group.DisplayName;
             DistinguishedName = group.DistinguishedName;
-            Guid = group.Guid.Value.ToString();
+            Guid = group.Guid.HasValue ? group.Guid.Value.ToString() : default(string);
             Name = group.Name;
             SamAccountName = group.SamAccountName;
             Sid = group.Sid.Value;
