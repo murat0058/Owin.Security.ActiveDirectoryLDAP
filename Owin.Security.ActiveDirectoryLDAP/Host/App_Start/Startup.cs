@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
+using Microsoft.AspNet.Identity;
 using Microsoft.Owin;
+using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.Cookies;
 using Owin;
 using Owin.Security.ActiveDirectoryLDAP;
@@ -13,12 +14,12 @@ namespace Host
     {
         public void Configuration(IAppBuilder app)
         {
+            app.SetDefaultSignInAsAuthenticationType(DefaultAuthenticationTypes.ApplicationCookie);
+
             app.UseCookieAuthentication(new CookieAuthenticationOptions
             {
-                AuthenticationType = LDAPAuthenticationDefaults.AuthenticationType,//Why is this needed? Can we get this to go through the external cookie pipeline instead? should we?
-                //Why does this break cookies? I'm pretty sure it has something to do with hijacking AuthenticationType
-                //CookieName = "derp",
-                //CookiePath = "/home",
+                CookieName = "Session",
+                AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
                 Provider = new CookieAuthenticationProvider
                 {
                     OnValidateIdentity = LDAPAuthenticationProvider.OnValidateIdentity(TimeSpan.FromMinutes(1))//15mins
@@ -49,13 +50,6 @@ namespace Host
             //    {
             //        OnValidateIdentity = Custom.OnValidateIdentity(TimeSpan.FromMinutes(1))
             //    }
-            //});
-
-            //app.UseLDAPAuthentication(new LDAPAuthenticationOptions
-            //{
-            //    Domains = MvcApplication.DomainCredentials,
-            //    LoginPath = new PathString("/Home/Login"),
-            //    //Provider =
             //});
         }
     }

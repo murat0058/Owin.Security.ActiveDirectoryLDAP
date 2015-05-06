@@ -43,7 +43,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
         internal static ClaimsIdentity GetClaimsIdentity(this UserPrincipal user, string authenticationType, string issuer = null, SerializationFormat serializationFormat = SerializationFormat.Json)
         {
             //var groups1 = user.GetGroups();//TODO: Store these in claims identity somehow, serialized?
-            //var groups2 = user.GetAuthorizationGroups();//difference?
+            var groups2 = user.GetAuthorizationGroups();//difference?
             //var times1 = user.PermittedLogonTimes;//parse?
             //var times2 = PermittedLogonTimes.GetLogonTimes(times1);
             //var test1 = groups1.First().ToXml();
@@ -51,7 +51,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
             //var test3 = ActiveDirectoryGroup.FromXml(test1);
             //var test4 = ActiveDirectoryGroup.FromJson(test2);
 
-            var test=  user.Context;
+            //var test=  user.Context;
 
             var identity = new ClaimsIdentity(authenticationType);
             //This is required for ASP.NET Identity, it should be a value unique to each user.

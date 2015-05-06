@@ -16,55 +16,6 @@ namespace Owin.Security.ActiveDirectoryLDAP
     // Created by the factory in the LDAPAuthenticationMiddleware class.
     internal class LDAPAuthenticationHandler : AuthenticationHandler<LDAPAuthenticationOptions>
     {
-        ////protected virtual Task ApplyResponseChallengeAsync();
-        //protected virtual Task ApplyResponseCoreAsync();
-        //protected virtual Task ApplyResponseGrantAsync();
-        ////protected abstract Task<AuthenticationTicket> AuthenticateCoreAsync();
-        //protected virtual Task InitializeCoreAsync();
-        /////public virtual Task<bool> InvokeAsync();
-        //protected virtual Task TeardownCoreAsync();
-
-        //// Summary:
-        ////     Override this method to deal with 401 challenge concerns, if an authentication
-        ////     scheme in question deals an authentication interaction as part of it's request
-        ////     flow. (like adding a response header, or changing the 401 result to 302 of
-        ////     a login page or external sign-in location.)
-        //protected virtual Task ApplyResponseChallengeAsync();
-        ////
-        //// Summary:
-        ////     Core method that may be overridden by handler. The default behavior is to
-        ////     call two common response activities, one that deals with sign-in/sign-out
-        ////     concerns, and a second to deal with 401 challenges.
-        //[DebuggerStepThrough]
-        //protected virtual Task ApplyResponseCoreAsync();
-        ////
-        //// Summary:
-        ////     Override this method to dela with sign-in/sign-out concerns, if an authentication
-        ////     scheme in question deals with grant/revoke as part of it's request flow.
-        ////     (like setting/deleting cookies)
-        //protected virtual Task ApplyResponseGrantAsync();
-        ////
-        //// Summary:
-        ////     The core authentication logic which must be provided by the handler. Will
-        ////     be invoked at most once per request. Do not call directly, call the wrapping
-        ////     Authenticate method instead.
-        ////
-        //// Returns:
-        ////     The ticket data provided by the authentication logic
-        //protected abstract Task<AuthenticationTicket> AuthenticateCoreAsync();
-        ////
-        //// Summary:
-        ////     Called once by common code after initialization. If an authentication middleware
-        ////     responds directly to specifically known paths it must override this virtual,
-        ////     compare the request path to it's known paths, provide any response information
-        ////     as appropriate, and true to stop further processing.
-        ////
-        //// Returns:
-        ////     Returning false will cause the common code to call the next middleware in
-        ////     line. Returning true will cause the common code to begin the async completion
-        ////     journey without calling the rest of the middleware pipeline.
-        //public virtual Task<bool> InvokeAsync();
-
         protected override Task InitializeCoreAsync()
         {
             return base.InitializeCoreAsync();
@@ -72,51 +23,53 @@ namespace Owin.Security.ActiveDirectoryLDAP
 
         public override async Task<bool> InvokeAsync()
         {
-            //D this earlier?
-            //if (Options.CallbackPath.HasValue && Options.CallbackPath == Request.Path)
-
-            var ticket = await AuthenticateAsync();//Calls AuthenticateCoreAsync()
-            if (ticket == null)
+            if (Options.CallbackPath.HasValue && Options.CallbackPath == Request.Path)
             {
-                return false;
-            }
+                var ticket = await AuthenticateAsync();//Calls AuthenticateCoreAsync()
+                if (ticket == null)
+                {
+                    //TODO: Construct proper redirect back to login page if we failed, also need to handle ajax responses or have some handler so a user can do it as well.
+                    //e.g. await Options.Provider.ReturnEndpoint(context);
+                    Response.Redirect(WebUtilities.AddQueryString(Options.LoginPath.Value, "error", "access_denied"));
 
-            //var context = new TwitterReturnEndpointContext(Context, model)
-            //{
-            //    SignInAsAuthenticationType = Options.SignInAsAuthenticationType,
-            //    RedirectUri = model.Properties.RedirectUri
-            //};
-            //await Options.Provider.ReturnEndpoint(context);
+                    return false;//This kills our process, we need to redirect back.
+                }
 
-            //string value;
-            //if (ticket.Properties.Dictionary.TryGetValue(HandledResponse, out value) && value == "true")
-            //{
-            //    return true;
-            //}
-            if (ticket.Identity != null)
-            {
-                if (Options.UseStateCookie && Request.Cookies[Options.StateKey] != null)
-                    Response.Cookies.Delete(Options.StateKey, new CookieOptions { HttpOnly = true, Secure = Request.IsSecure });
-                Request.Context.Authentication.SignIn(ticket.Properties, ticket.Identity);//Should we be doing this if there is no redirect?
-            }
+                //var context = new TwitterReturnEndpointContext(Context, model)
+                //{
+                //    SignInAsAuthenticationType = Options.SignInAsAuthenticationType,
+                //    RedirectUri = model.Properties.RedirectUri
+                //};
+                //await Options.Provider.ReturnEndpoint(context);
 
-            //Add a provider event handle here to catch the redirect in case we want to do AJAX post back?
+                //string value;
+                //if (ticket.Properties.Dictionary.TryGetValue(HandledResponse, out value) && value == "true")
+                //{
+                //    return true;
+                //}
+                if (ticket.Identity != null)
+                {
+                    var properties = ticket.Properties;
+                    if (Options.UseStateCookie && Request.Cookies[Options.StateKey] != null)
+                        Response.Cookies.Delete(Options.StateKey, new CookieOptions { HttpOnly = true, Secure = Request.IsSecure });
 
-            // Redirect back to the original secured resource, if any.
-            if (!String.IsNullOrWhiteSpace(ticket.Properties.RedirectUri))
-            {
-                Response.Redirect(ticket.Properties.RedirectUri);
-                return true;
+                    //Add a provider event handle here to catch the redirect in case we want to do AJAX post back?
+                    if (Options.ExternalCallbackPath.HasValue)
+                    {
+                        Request.Context.Authentication.SignIn(properties, ticket.Identity);
+                        Response.Redirect(Options.ExternalCallbackPath.Value);
+                        return true;
+                    }
+                    else
+                    {
+                        Request.Context.Authentication.SignIn(new ClaimsIdentity(ticket.Identity.Claims, Options.SignInAsAuthenticationType));//properties?
+                        Response.Redirect(String.IsNullOrEmpty(properties.RedirectUri) ? "/" : properties.RedirectUri);//TODO: Try to get Redirect path from form if there isn't one in the properties?
+                        return true;
+                    }
+                }
             }
-            else if (Options.DefaultReturnPath.HasValue)
-            {
-                Response.Redirect(Options.DefaultReturnPath.Value);
-                return true;
-            }
-            //else broken
 
             return false;
-
             //return base.InvokeAsync();
         }
 
@@ -265,9 +218,6 @@ namespace Owin.Security.ActiveDirectoryLDAP
 
         protected override async Task<AuthenticationTicket> AuthenticateCoreAsync()
         {
-            if (Options.CallbackPath.HasValue && Options.CallbackPath != (Request.PathBase + Request.Path))
-                return null;
-
             //Redirect back to login if fail beyond this point?
 
             if (String.Equals(Request.Method, "POST", StringComparison.OrdinalIgnoreCase) && Request.Body.CanRead)
@@ -304,7 +254,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
                         : form.Get(Options.StateKey) ?? Request.Query[Options.StateKey];//TODO: Check referer header as last ditch?
 
                     ClaimsIdentity identity;
-                    if (TryValidateCredentials(domain, username, password, out identity))
+                    if (TryValidateCredentials(domain, username, password, out identity))//TODO: Pass back proper error reason
                     {
                         //var context = new TwitterAuthenticatedContext(Context, accessToken.UserId, accessToken.ScreenName, accessToken.Token, accessToken.TokenSecret);
 

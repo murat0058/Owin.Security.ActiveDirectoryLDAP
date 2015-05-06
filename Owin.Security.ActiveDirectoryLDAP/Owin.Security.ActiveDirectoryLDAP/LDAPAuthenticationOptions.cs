@@ -20,13 +20,10 @@ namespace Owin.Security.ActiveDirectoryLDAP
             AntiForgeryFieldName = LDAPAuthenticationDefaults.AntiForgeryFieldName;
             AuthenticationMode = AuthenticationMode.Active;
             CallbackPath = new PathString("/signin-ldap");
-            DefaultReturnPath = new PathString("/");
             Description.Caption = LDAPAuthenticationDefaults.Caption;
             DomainKey = LDAPAuthenticationDefaults.DomainKey;
             Domains = new List<DomainCredential>();
             PasswordKey = LDAPAuthenticationDefaults.PasswordKey;
-            Provider = new LDAPAuthenticationProvider();
-            SignInAsAuthenticationType = LDAPAuthenticationDefaults.AuthenticationType;//Should this be here?
             StateKey = LDAPAuthenticationDefaults.StateKey;//required
             UsernameKey = LDAPAuthenticationDefaults.UsernameKey;
             UseStateCookie = true;
@@ -45,10 +42,14 @@ namespace Owin.Security.ActiveDirectoryLDAP
         /// The path to post back the login information to.
         /// </summary>
         public PathString CallbackPath { get; set; }
-        /// <summary>
-        /// The default path to redirect to after authentication if the authentication state is invalid or missing.
-        /// </summary>
-        public PathString DefaultReturnPath { get; set; }
+
+
+
+        public PathString ExternalCallbackPath { get; set; }
+
+
+
+
         /// <summary>
         /// The form input name of the domain field; used if no domain is included with the username.
         /// </summary>

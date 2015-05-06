@@ -15,9 +15,18 @@ namespace Owin.Security.ActiveDirectoryLDAP
         public LDAPAuthenticationMiddleware(OwinMiddleware next, IAppBuilder app, LDAPAuthenticationOptions options)
             : base(next, options)
         {
-            if (String.IsNullOrEmpty(Options.SignInAsAuthenticationType))
+            //if (string.IsNullOrWhiteSpace(Options.ConsumerSecret))
+            //{
+            //    throw new ArgumentException(String.Format(CultureInfo.CurrentCulture, Resources.Exception_OptionMustBeProvided, "ConsumerSecret"));
+            //}
+            //if (string.IsNullOrWhiteSpace(Options.ConsumerKey))
+            //{
+            //    throw new ArgumentException(String.Format(CultureInfo.CurrentCulture, Resources.Exception_OptionMustBeProvided, "ConsumerKey"));
+            //}
+
+            if (options.Provider == null)
             {
-                options.SignInAsAuthenticationType = app.GetDefaultSignInAsAuthenticationType();
+                options.Provider = new LDAPAuthenticationProvider();
             }
             if (options.StateDataFormat == null)
             {
@@ -25,6 +34,10 @@ namespace Owin.Security.ActiveDirectoryLDAP
                     options.AuthenticationType);
 
                 options.StateDataFormat = new PropertiesDataFormat(dataProtector);
+            }
+            if (String.IsNullOrEmpty(Options.SignInAsAuthenticationType))
+            {
+                options.SignInAsAuthenticationType = app.GetDefaultSignInAsAuthenticationType();
             }
         }
 
