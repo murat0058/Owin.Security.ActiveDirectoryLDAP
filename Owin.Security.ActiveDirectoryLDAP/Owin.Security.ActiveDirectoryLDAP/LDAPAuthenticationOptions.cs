@@ -42,14 +42,6 @@ namespace Owin.Security.ActiveDirectoryLDAP
         /// The path to post back the login information to.
         /// </summary>
         public PathString CallbackPath { get; set; }
-
-
-
-        public PathString ExternalCallbackPath { get; set; }
-
-
-
-
         /// <summary>
         /// The form input name of the domain field; used if no domain is included with the username.
         /// </summary>
@@ -74,10 +66,14 @@ namespace Owin.Security.ActiveDirectoryLDAP
         /// Gets or sets the <see cref="ILDAPAuthenticationProvider"/> used to handle authentication events.
         /// </summary>
         public ILDAPAuthenticationProvider Provider { get; set; }
-        ///// <summary>
-        ///// The serialization format to use in claims.
-        ///// </summary>
-        //public SerializationFormat SerializationFormat { get; set; }
+        /// <summary>
+        /// The path to redirect to for setting the local authentication cookie when being used in passive (external) mode.
+        /// </summary>
+        public PathString RedirectPath { get; set; }
+        /// <summary>
+        /// The serialization format to use in claims.
+        /// </summary>
+        public SerializationFormat SerializationFormat { get; set; }
         /// <summary>
         ///
         /// </summary>

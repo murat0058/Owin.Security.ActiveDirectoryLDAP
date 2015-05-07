@@ -102,7 +102,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
             if (user.LastPasswordSet.HasValue)
                 identity.AddClaim(new Claim(ClaimTypesAD.LastPasswordSet, user.LastPasswordSet.RoundTripString(), ClaimValueTypes.DateTime));
             if (user.PermittedLogonTimes != null)
-                identity.AddClaim(LogonTimes.PermittedLogonTimes(user.PermittedLogonTimes).ToClaim());
+                identity.AddClaim(LogonTimes.PermittedLogonTimes(user.PermittedLogonTimes).ToClaim(serializationFormat));
 
             return identity;
         }

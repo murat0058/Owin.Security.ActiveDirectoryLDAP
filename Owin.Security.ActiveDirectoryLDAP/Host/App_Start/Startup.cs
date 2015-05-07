@@ -34,7 +34,7 @@ namespace Host
                 Domains = MvcApplication.DomainCredentials,
                 LoginPath = new PathString("/Home/Login"),
                 //AuthenticationMode = AuthenticationMode.Passive,
-                ExternalCallbackPath = new PathString("/Account/ExternalLoginCallback"),
+                RedirectPath = new PathString("/Account/ExternalLoginCallback"),
                 //Provider =
             });
 

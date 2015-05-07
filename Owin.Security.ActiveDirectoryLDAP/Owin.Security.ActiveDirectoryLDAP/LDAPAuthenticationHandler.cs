@@ -49,11 +49,11 @@ namespace Owin.Security.ActiveDirectoryLDAP
         //Should only be hit in active mode.
         protected override async Task ApplyResponseChallengeAsync()
         {
-            if (Response.StatusCode != 401)// || !Options.LoginPath.HasValue)
+            if (Response.StatusCode != 401 || !Options.LoginPath.HasValue)
                 return;
 
             var challenge = Helper.LookupChallenge(Options.AuthenticationType, Options.AuthenticationMode);
-            if (challenge == null)//Is challenge ever not null here?
+            if (challenge == null)
                 return;
 
             var baseUri =
@@ -73,6 +73,8 @@ namespace Owin.Security.ActiveDirectoryLDAP
             {
                 properties.RedirectUri = currentUri;//TODO: I think this is expecting the extenral auth callback url, not the page url (it depends on what mode it is operating in)
             }
+
+            //properties.Dictionary["ReturnUrl"] = currentUri;
 
             var authenticationEndpoint = Options.LoginPath.Value;
             if (Options.UseStateCookie)
@@ -197,8 +199,8 @@ namespace Owin.Security.ActiveDirectoryLDAP
             if (!context.IsRequestCompleted)// && context.RedirectUri != null)
             {
                 //Add a provider event handle here to catch the redirect in case we want to do AJAX post back?
-                context.RedirectUri = Options.ExternalCallbackPath.HasValue
-                                    ? Options.ExternalCallbackPath.Value
+                context.RedirectUri = Options.RedirectPath.HasValue
+                                    ? Options.RedirectPath.Value
                                     : String.IsNullOrEmpty(context.RedirectUri)//TODO: this RedirectUri is _supposed_ to be the ExternalCallbackPath I think, not the page redirect url.
                                     ? "/"
                                     : context.RedirectUri;//TODO: Try to get Redirect path from form if there isn't one in the properties?
@@ -255,7 +257,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
                     using (var user = UserPrincipal.FindByIdentity(context, IdentityType.SamAccountName, account))//On refresh lookup by Sid?/Guid IdentityType.Guid
                     {
                         //claim issuer? "AD AUTHORITY"? context.ConnectedServer?
-                        identity = user.GetClaimsIdentity(Options.AuthenticationType, domain, issuer: "AD AUTHORITY");
+                        identity = user.GetClaimsIdentity(Options.AuthenticationType, domain, issuer: "AD AUTHORITY", serializationFormat: Options.SerializationFormat);
                         return true;
                     }
                 }
