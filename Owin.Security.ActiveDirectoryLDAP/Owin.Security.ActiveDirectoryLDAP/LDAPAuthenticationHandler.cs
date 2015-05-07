@@ -217,7 +217,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
                     using (var user = UserPrincipal.FindByIdentity(context, IdentityType.SamAccountName, account))//On refresh lookup by Sid?/Guid IdentityType.Guid
                     {
                         //claim issuer? "AD AUTHORITY"? context.ConnectedServer?
-                        identity = user.GetClaimsIdentity(Options.AuthenticationType, issuer: "AD AUTHORITY");
+                        identity = user.GetClaimsIdentity(Options.AuthenticationType, domain, issuer: "AD AUTHORITY");
                         return true;
                     }
                 }

@@ -45,7 +45,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
         public static Group FromClaim(Claim claim)
         {
             //return null instead of throwing?
-            if (claim.Type != LDAPClaimTypes.ActiveDirectoryGroup)
+            if (claim.Type != ClaimTypesAD.ActiveDirectoryGroup)
                 throw new ArgumentException("Invalid claim type.", "claim");
             //not a great thing to do
             if (claim.Value.StartsWith("{"))

@@ -2,7 +2,7 @@
 
 namespace Owin.Security.ActiveDirectoryLDAP
 {
-    public static class LDAPClaimTypes
+    public static class ClaimTypesAD
     {
         public const string AccountExpiration = ClaimTypeNamespace + "/accountexpiration";
         public const string AccountLockout = ClaimTypeNamespace + "/accountlockout";
@@ -28,6 +28,15 @@ namespace Owin.Security.ActiveDirectoryLDAP
         public const string UserPrincipalName = ClaimTypeNamespace + "/userprincipalname";
         public const string VoicePhone = ClaimTypeNamespace + "/voicephone";
 
-        internal const string ClaimTypeNamespace = "http://schemas.wustl.edu/ws/2015/04/identity/claims";
+        private const string ClaimTypeNamespace = "http://schemas.wustl.edu/ws/2015/04/identity/claims";
     }
+
+    //public static class ClaimValueTypesAD
+    //{
+    //    public const string DsaKeyValue = "http://www.w3.org/2000/09/xmldsig#DSAKeyValue";
+    //    public const string Email = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress";
+    //    public const string Fqbn = "http://www.w3.org/2001/XMLSchema#fqbn";
+    //
+    //    internal const string ClaimValueTypeNamespace = "http://schemas.wustl.edu/ws/2015/04/identity/claims";
+    //}
 }
