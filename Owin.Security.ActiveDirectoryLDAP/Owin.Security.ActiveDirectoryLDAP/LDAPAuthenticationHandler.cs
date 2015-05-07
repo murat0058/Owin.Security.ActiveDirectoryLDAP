@@ -217,7 +217,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
                     using (var user = UserPrincipal.FindByIdentity(context, IdentityType.SamAccountName, account))//On refresh lookup by Sid?/Guid IdentityType.Guid
                     {
                         //claim issuer? "AD AUTHORITY"? context.ConnectedServer?
-                        identity = user.GetClaimsIdentity(Options.SignInAsAuthenticationType, issuer: "AD AUTHORITY");//Is this the proper "Type"? or should it be Options.AuthenticationType (SignInAsAuthenticationType)
+                        identity = user.GetClaimsIdentity(Options.AuthenticationType, issuer: "AD AUTHORITY");
                         return true;
                     }
                 }
@@ -239,13 +239,14 @@ namespace Owin.Security.ActiveDirectoryLDAP
         {
             //Redirect back to login if fail beyond this point?
 
-            if (String.Equals(Request.Method, "POST", StringComparison.OrdinalIgnoreCase) && Request.Body.CanRead)
+            if (String.Equals(Request.Method, "POST", StringComparison.OrdinalIgnoreCase)
+                && !String.IsNullOrWhiteSpace(Request.ContentType)
+                && Request.Body.CanRead)
             {
                 // May have media/type; charset=utf-8, allow partial match.
-                //!String.IsNullOrWhiteSpace(Request.ContentType)
-                //Request.ContentType.StartsWith("application/x-www-form-urlencoded", StringComparison.OrdinalIgnoreCase)
-                //Request.ContentType.StartsWith("multipart/form-data", StringComparison.OrdinalIgnoreCase)
-                //Request.ContentType.StartsWith("application/json", StringComparison.OrdinalIgnoreCase)//json post? ajax?
+                //&& Request.ContentType.StartsWith("application/x-www-form-urlencoded", StringComparison.OrdinalIgnoreCase)
+                //&& Request.ContentType.StartsWith("multipart/form-data", StringComparison.OrdinalIgnoreCase)
+                //&& Request.ContentType.StartsWith("application/json", StringComparison.OrdinalIgnoreCase)//json post? ajax?
 
                 if (!Request.Body.CanSeek)
                 {
