@@ -1,7 +1,10 @@
 ﻿// Per the Apache License, Section 4b, this file has been modified from its original version for use in this library.
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 using System;
+using System.Collections.Generic;
 using System.DirectoryServices.AccountManagement;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.Provider;
@@ -69,7 +72,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
         }
 
         //Put this someplace else?
-        public static Func<CookieValidateIdentityContext, Task> OnValidateIdentity(TimeSpan validateInterval)
+        public static Func<CookieValidateIdentityContext, Task> OnValidateIdentity(IList<DomainCredential> domains, TimeSpan validateInterval)
         {
             return (Func<CookieValidateIdentityContext, Task>)(async cookie =>
             {
@@ -85,52 +88,63 @@ namespace Owin.Security.ActiveDirectoryLDAP
                 // get the time we issued this claim-set (and if not there, big-bang)
                 var issuedUtc = cookie.Properties.IssuedUtc.GetValueOrDefault(DateTime.MinValue);
                 var usedValidityPeriod = currentUtc.Subtract(issuedUtc);
-
-                // if we've not used up the claim's validity interval we can just return.
-                if (usedValidityPeriod <= validateInterval)
+                if (usedValidityPeriod <= validateInterval)// if we've not used up the claim's validity interval we can just return.
                     return;
-
-                var identity = cookie.Identity;
 
                 // we need to revalidate the claim... need the current user information.
+                var identity = cookie.Identity;
                 var userGuid = identity.GetUserGuid();
-
-                // no userId, no worries, this is an anonymous claim
-                if (userGuid == default(Guid))
+                if (userGuid == null)//This is an anonymous claim?
                     return;
 
-                ////How can I get the principal context????
-                //using (var context = new PrincipalContext(ContextType.Domain))//Get this from someplace
-                //using (var user = UserPrincipal.FindByIdentity(context, IdentityType.Guid, userGuid.ToString()))//On refresh lookup by Sid?/Guid IdentityType.Guid
-                //{
-                //    //claim issuer? "AD AUTHORITY"? context.ConnectedServer?
-                //    //identity = user.GetClaimsIdentity(cookie.);//Is this the proper "Type"? or should it be Options.AuthenticationType (SignInAsAuthenticationType)
-                //    //Get proper type from cookie
-                //}
+                // we've got a user, but it may now be invalid...
+                identity = await Task.Run(() =>
+                {
+                    var domain = identity.GetUserDomain();
+                    var credentials = domains.Where(_ => !String.IsNullOrEmpty(_.Name)).FirstOrDefault(_ => _.Name.Equals(domain, StringComparison.OrdinalIgnoreCase));
+                    if (credentials == null)//No credentials for the users claimed domain, they cannot be revalidated.
+                        return default(ClaimsIdentity);
 
-                // we've got a userId, but it may now be invalid...
-                //identity = await Task.Run(() =>
-                //{
-                //    var user = Repositories.Instance.AlertsUser.GetUser(userId);
-                //    if (user != null)
-                //    {
-                //        // it's a valid user, check the securityStamp to ensure we're using the same "last-login" for this user
-                //        var securityStamp = msIdentity.IdentityExtensions.FindFirstValue(identity, ExtraClaimTypes.SecurityStamp);
-                //        if (securityStamp != null && securityStamp.Equals(user.SecurityStamp, StringComparison.Ordinal))
-                //        {
-                //            identity = Repositories.Instance.AlertsUser.RegenerateClaimsIdentity(identity);
+                    try
+                    {
+                        using (var context = credentials.GetContext())
+                        using (var user = UserPrincipal.FindByIdentity(context, IdentityType.Guid, userGuid.ToString()))
+                        {
+                            if (user != null)
+                            {
+                                //TODO: Check if the user is still 'valid', delegate?
 
-                //            if (identity != null)
-                //            {
-                //                // it's a valid login, and matches everything... issue the identity
-                //                baseContext.OwinContext.Authentication.SignIn(identity);
-                //                return identity;
-                //            }
-                //        }
-                //    }
+                                //// it's a valid user, check the securityStamp to ensure we're using the same "last-login" for this user
+                                //var securityStamp = msIdentity.IdentityExtensions.FindFirstValue(identity, ExtraClaimTypes.SecurityStamp);
+                                //if (securityStamp != null && securityStamp.Equals(user.SecurityStamp, StringComparison.Ordinal))
+                                //{
+                                //    identity = RegenerateClaimsIdentity(identity);
+                                //    if (identity != null)
+                                //    {
+                                //        // it's a valid login, and matches everything... issue the identity
+                                //        baseContext.OwinContext.Authentication.SignIn(identity);
+                                //        return identity;
+                                //    }
+                                //}
 
-                //    return null;
-                //});
+                                //claim issuer? "AD AUTHORITY"? context.ConnectedServer?
+                                //identity = user.GetClaimsIdentity(cookie.);//Is this the proper "Type"? or should it be Options.AuthenticationType (SignInAsAuthenticationType)
+                                //Get proper type from cookie
+
+                                //TODO: Regenerate identity properly, should replace only the claims that are in the current identity.
+                            }
+                        }
+                    }
+                    catch (PrincipalServerDownException ex)
+                    {
+                        //We should emit the fact that this happened someplace. raise an event to something?
+                    }
+                    catch (Exception ex)
+                    {
+                    }
+
+                    return default(ClaimsIdentity);
+                });
 
                 if (identity == null)
                 {

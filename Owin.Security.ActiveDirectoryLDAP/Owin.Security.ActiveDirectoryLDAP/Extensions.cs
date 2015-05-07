@@ -24,6 +24,14 @@ namespace Owin.Security.ActiveDirectoryLDAP
             return new SecurityIdentifier(claim.Value);
         }
 
+        internal static string GetUserDomain(this ClaimsIdentity identity)
+        {
+            var claim = identity.Claims.SingleOrDefault(_ => _.Type == ClaimTypesAD.Domain);
+            if (claim == null)
+                return default(string);
+            return claim.Value;
+        }
+
         //internal static string GetUserGuid(this ClaimsIdentity identity)
         //{
         //    var claim = identity.Claims.SingleOrDefault(_ => _.Type == ClaimTypes.NameIdentifier);

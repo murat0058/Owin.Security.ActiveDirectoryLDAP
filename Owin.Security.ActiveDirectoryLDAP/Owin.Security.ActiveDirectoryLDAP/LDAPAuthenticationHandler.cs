@@ -164,11 +164,12 @@ namespace Owin.Security.ActiveDirectoryLDAP
 
         private async Task<bool> InvokeReturnPathAsync()
         {
-            var model = await AuthenticateAsync();//Calls AuthenticateCoreAsync()
+            var model = await AuthenticateAsync();
             if (model == null)
             {
                 //TODO: Construct proper redirect back to login page if we failed, also need to handle ajax responses or have some handler so a user can do it as well.
                 //e.g. await Options.Provider.ReturnEndpoint(context);
+                //TODO: Where would we send them back if they are using passive mode?
                 Response.Redirect(WebUtilities.AddQueryString(Options.LoginPath.Value, "error", "access_denied"));
                 return false;//This kills our process, we need to redirect back.
                 //Response.StatusCode = 500;
@@ -256,9 +257,12 @@ namespace Owin.Security.ActiveDirectoryLDAP
 
                     using (var user = UserPrincipal.FindByIdentity(context, IdentityType.SamAccountName, account))//On refresh lookup by Sid?/Guid IdentityType.Guid
                     {
-                        //claim issuer? "AD AUTHORITY"? context.ConnectedServer?
-                        identity = user.GetClaimsIdentity(Options.AuthenticationType, domain, issuer: "AD AUTHORITY", serializationFormat: Options.SerializationFormat);
-                        return true;
+                        if (user != null)//This shouldn't happen since we just checked their password, but we will check anyway.
+                        {
+                            //claim issuer? "AD AUTHORITY"? context.ConnectedServer?
+                            identity = user.GetClaimsIdentity(Options.AuthenticationType, domain, issuer: "AD AUTHORITY", serializationFormat: Options.SerializationFormat);
+                            return true;
+                        }
                     }
                 }
             }

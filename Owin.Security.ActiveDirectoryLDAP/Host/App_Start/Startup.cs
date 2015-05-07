@@ -23,7 +23,8 @@ namespace Host
                 //LoginPath = new PathString("/Home/Login"),
                 Provider = new CookieAuthenticationProvider
                 {
-                    OnValidateIdentity = LDAPAuthenticationProvider.OnValidateIdentity(TimeSpan.FromMinutes(1))//15mins
+                    //TODO: Can we somehow access the domains from options or generate this from options instead of needing the list in both places?
+                    OnValidateIdentity = LDAPAuthenticationProvider.OnValidateIdentity(MvcApplication.DomainCredentials, TimeSpan.FromMinutes(1))//15mins
                 }
             });
 
@@ -34,6 +35,7 @@ namespace Host
                 Domains = MvcApplication.DomainCredentials,
                 LoginPath = new PathString("/Home/Login"),
                 //AuthenticationMode = AuthenticationMode.Passive,
+                //SignInAsAuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,//This or SetDefaultSignInAsAuthenticationType required if no RedirectPath specified. (i.e. interally set application cookie)
                 RedirectPath = new PathString("/Account/ExternalLoginCallback"),
                 //Provider =
             });
