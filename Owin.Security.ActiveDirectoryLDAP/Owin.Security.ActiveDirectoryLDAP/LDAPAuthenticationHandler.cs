@@ -25,52 +25,70 @@ namespace Owin.Security.ActiveDirectoryLDAP
         {
             if (Options.CallbackPath.HasValue && Options.CallbackPath == Request.Path)
             {
-                var ticket = await AuthenticateAsync();//Calls AuthenticateCoreAsync()
-                if (ticket == null)
-                {
-                    //TODO: Construct proper redirect back to login page if we failed, also need to handle ajax responses or have some handler so a user can do it as well.
-                    //e.g. await Options.Provider.ReturnEndpoint(context);
-                    Response.Redirect(WebUtilities.AddQueryString(Options.LoginPath.Value, "error", "access_denied"));
+                return await InvokeReturnPathAsync();
+            }
+            return false;
+        }
 
-                    return false;//This kills our process, we need to redirect back.
-                }
+        private async Task<bool> InvokeReturnPathAsync()
+        {
+            var model = await AuthenticateAsync();//Calls AuthenticateCoreAsync()
+            if (model == null)
+            {
+                //TODO: Construct proper redirect back to login page if we failed, also need to handle ajax responses or have some handler so a user can do it as well.
+                //e.g. await Options.Provider.ReturnEndpoint(context);
+                Response.Redirect(WebUtilities.AddQueryString(Options.LoginPath.Value, "error", "access_denied"));
+                return false;//This kills our process, we need to redirect back.
+                //Response.StatusCode = 500;
+                //return true;
+            }
 
-                //var context = new TwitterReturnEndpointContext(Context, model)
+            var context = new LDAPReturnEndpointContext(Context, model);
+            context.SignInAsAuthenticationType = Options.SignInAsAuthenticationType;
+            context.RedirectUri = model.Properties.RedirectUri;
+            //model.Properties.RedirectUri = null;
+
+            await Options.Provider.ReturnEndpoint(context);
+
+            if (context.SignInAsAuthenticationType != null && context.Identity != null)
+            {
+                var signInIdentity = context.Identity;
+                //if (!String.Equals(signInIdentity.AuthenticationType, context.SignInAsAuthenticationType, StringComparison.Ordinal))
                 //{
-                //    SignInAsAuthenticationType = Options.SignInAsAuthenticationType,
-                //    RedirectUri = model.Properties.RedirectUri
-                //};
-                //await Options.Provider.ReturnEndpoint(context);
-
-                //string value;
-                //if (ticket.Properties.Dictionary.TryGetValue(HandledResponse, out value) && value == "true")
-                //{
-                //    return true;
+                //    signInIdentity = new ClaimsIdentity(signInIdentity.Claims, context.SignInAsAuthenticationType, signInIdentity.NameClaimType, signInIdentity.RoleClaimType);
                 //}
-                if (ticket.Identity != null)
-                {
-                    var properties = ticket.Properties;
-                    if (Options.UseStateCookie && Request.Cookies[Options.StateKey] != null)
-                        Response.Cookies.Delete(Options.StateKey, new CookieOptions { HttpOnly = true, Secure = Request.IsSecure });
+                //Context.Authentication.SignIn(context.Properties, signInIdentity);
 
-                    //Add a provider event handle here to catch the redirect in case we want to do AJAX post back?
-                    if (Options.ExternalCallbackPath.HasValue)
-                    {
-                        Request.Context.Authentication.SignIn(properties, ticket.Identity);
-                        Response.Redirect(Options.ExternalCallbackPath.Value);
-                        return true;
-                    }
-                    else
-                    {
-                        Request.Context.Authentication.SignIn(new ClaimsIdentity(ticket.Identity.Claims, Options.SignInAsAuthenticationType));//properties?
-                        Response.Redirect(String.IsNullOrEmpty(properties.RedirectUri) ? "/" : properties.RedirectUri);//TODO: Try to get Redirect path from form if there isn't one in the properties?
-                        return true;
-                    }
+                if (Options.UseStateCookie && Request.Cookies[Options.StateKey] != null)
+                    Response.Cookies.Delete(Options.StateKey, new CookieOptions { HttpOnly = true, Secure = Request.IsSecure });
+
+                //Add a provider event handle here to catch the redirect in case we want to do AJAX post back?
+                if (Options.ExternalCallbackPath.HasValue)
+                {
+                    Context.Authentication.SignIn(context.Properties, signInIdentity);
+                    Response.Redirect(Options.ExternalCallbackPath.Value);
+                    context.RequestCompleted();
+                }
+                else
+                {
+                    Context.Authentication.SignIn(new ClaimsIdentity(signInIdentity.Claims, context.SignInAsAuthenticationType, signInIdentity.NameClaimType, signInIdentity.RoleClaimType));//properties?
+                    Response.Redirect(String.IsNullOrEmpty(context.RedirectUri) ? "/" : context.RedirectUri);//TODO: Try to get Redirect path from form if there isn't one in the properties?
+                    context.RequestCompleted();
                 }
             }
 
-            return false;
-            //return base.InvokeAsync();
+            //if (!context.IsRequestCompleted && context.RedirectUri != null)
+            //{
+            //    if (context.Identity == null)
+            //    {
+            //        // add a redirect hint that sign-in failed in some way
+            //        context.RedirectUri = WebUtilities.AddQueryString(context.RedirectUri, "error", "access_denied");
+            //    }
+            //    Response.Redirect(context.RedirectUri);
+            //    context.RequestCompleted();
+            //}
+
+            return context.IsRequestCompleted;
         }
 
         protected override Task ApplyResponseCoreAsync()
