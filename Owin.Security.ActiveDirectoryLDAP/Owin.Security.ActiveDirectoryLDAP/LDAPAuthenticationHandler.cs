@@ -3,6 +3,7 @@
 using System;
 using System.Diagnostics;
 using System.DirectoryServices.AccountManagement;
+using System.IO;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web.Helpers;
@@ -246,19 +247,17 @@ namespace Owin.Security.ActiveDirectoryLDAP
                 //Request.ContentType.StartsWith("multipart/form-data", StringComparison.OrdinalIgnoreCase)
                 //Request.ContentType.StartsWith("application/json", StringComparison.OrdinalIgnoreCase)//json post? ajax?
 
-                //if (!Request.Body.CanSeek)
-                //{
-                //    _logger.WriteVerbose("Buffering request body");
-                //    // Buffer in case this body was not meant for us.
-                //    MemoryStream memoryStream = new MemoryStream();
-                //    await Request.Body.CopyToAsync(memoryStream);
-                //    memoryStream.Seek(0, SeekOrigin.Begin);
-                //    Request.Body = memoryStream;
-                //}
-                //IFormCollection form = await Request.ReadFormAsync();
-                //Request.Body.Seek(0, SeekOrigin.Begin);
+                if (!Request.Body.CanSeek)
+                {
+                    // Buffer in case this body was not meant for us.
+                    var memoryStream = new MemoryStream();
+                    await Request.Body.CopyToAsync(memoryStream);
+                    memoryStream.Seek(0, SeekOrigin.Begin);
+                    Request.Body = memoryStream;
+                }
+                var form = await Request.ReadFormAsync();
+                Request.Body.Seek(0, SeekOrigin.Begin);
 
-                var form = await Request.ReadFormAsync();//Will this kill the input stream? It might be needed later.
                 if (!Options.ValidateAntiForgeryToken || ValidAntiForgeryTokens(form))
                 {
                     //LDAP domain is case insensitive
