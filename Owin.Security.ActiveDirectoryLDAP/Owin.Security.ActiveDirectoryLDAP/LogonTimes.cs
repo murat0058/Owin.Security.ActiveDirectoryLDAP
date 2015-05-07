@@ -17,6 +17,15 @@ namespace Owin.Security.ActiveDirectoryLDAP
     //https://msdn.microsoft.com/en-us/library/cc245621.aspx
     //TODO: Handle TimeZones functionality that was present in the 386ffcb5c355eb2fd8f7edbf667f4ff89c5b9138 tree?
 
+    //I'm not sure if this can be anything but hours on a UserPrincipal.PermittedLogonTimes
+    //or if this is even a reliable way to tell, can we get the actual UnitsPerWeek from someplace?
+    //if (times.Length == 1)// (7*1)/8
+    //    ;//7 bits, each bit is a day UnitsPerWeek, 00:00:00 to 23:59:59
+    //if (times.Length == 21)// (7*24)/8
+    //    ;//168 bits, each bit is an hour UnitsPerWeek, 00:00 to 59:59
+    //if (times.Length == 1260)// (7*24*60)/8
+    //    ;//10080 bits, each bit is a minute UnitsPerWeek, 00 to 59
+
     [DataContract(Namespace = "http://schemas.wustl.edu/ws/2015/04/logontimes")]
     public class LogonTimes
     {
@@ -48,15 +57,6 @@ namespace Owin.Security.ActiveDirectoryLDAP
         {
             if (times == null)
                 return null;//All?
-
-            //I'm not sure if this can be anything but hours on a UserPrincipal.PermittedLogonTimes
-            //or if this is even a reliable way to tell, can we get the actual UnitsPerWeek from someplace?
-            //if (times.Length == 1)// (7*1)/8
-            //    ;//7 bits, each bit is a day UnitsPerWeek, 00:00:00 to 23:59:59
-            //if (times.Length == 21)// (7*24)/8
-            //    ;//168 bits, each bit is an hour UnitsPerWeek, 00:00 to 59:59
-            //if (times.Length == 1260)// (7*24*60)/8
-            //    ;//10080 bits, each bit is a minute UnitsPerWeek, 00 to 59
 
             var logonTimes = new LogonTimes();
 
