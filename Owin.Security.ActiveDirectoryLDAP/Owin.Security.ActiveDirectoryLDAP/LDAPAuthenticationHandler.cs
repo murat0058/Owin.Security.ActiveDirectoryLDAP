@@ -257,12 +257,18 @@ namespace Owin.Security.ActiveDirectoryLDAP
 
                     using (var user = UserPrincipal.FindByIdentity(context, IdentityType.SamAccountName, account))//On refresh lookup by Sid?/Guid IdentityType.Guid
                     {
-                        if (user != null)//This shouldn't happen since we just checked their password, but we will check anyway.
-                        {
-                            //claim issuer? "AD AUTHORITY"? context.ConnectedServer?
-                            identity = user.GetClaimsIdentity(Options.AuthenticationType, domain, issuer: "AD AUTHORITY", serializationFormat: Options.SerializationFormat);
-                            return true;
-                        }
+                        if (user == null)//This shouldn't happen since we just checked their password, but we will check anyway.
+                            return false;
+
+                        var isValid = Options.ValidUser != null
+                                    ? Options.ValidUser(user)
+                                    : user.IsValid();
+                        if (!isValid)
+                            return false;
+
+                        //claim issuer? "AD AUTHORITY"? context.ConnectedServer?
+                        identity = user.GetClaimsIdentity(Options.AuthenticationType, domain, issuer: "AD AUTHORITY", serializationFormat: Options.SerializationFormat);
+                        return true;
                     }
                 }
             }

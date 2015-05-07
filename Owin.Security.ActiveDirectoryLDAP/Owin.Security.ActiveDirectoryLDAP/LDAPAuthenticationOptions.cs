@@ -98,6 +98,10 @@ namespace Owin.Security.ActiveDirectoryLDAP
         /// Whether or not antiforgery tokens should be validated on a login request to the callback path.
         /// </summary>
         public bool ValidateAntiForgeryToken { get; set; }
+        /// <summary>
+        /// A function delegate for deciding if a UserPrincipal is allowed to be authenticated.
+        /// </summary>
+        public Func<UserPrincipal, bool> ValidUser { get; set; }
 
         internal PrincipalContext GetContext(string domain)
         {

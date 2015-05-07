@@ -71,8 +71,10 @@ namespace Owin.Security.ActiveDirectoryLDAP
             OnApplyRedirect(context);
         }
 
+
+
         //Put this someplace else?
-        public static Func<CookieValidateIdentityContext, Task> OnValidateIdentity(IList<DomainCredential> domains, TimeSpan validateInterval)
+        public static Func<CookieValidateIdentityContext, Task> OnValidateIdentity(IList<DomainCredential> domains, TimeSpan validateInterval, Func<UserPrincipal, bool> validUser = null)
         {
             return (Func<CookieValidateIdentityContext, Task>)(async cookie =>
             {
@@ -112,7 +114,9 @@ namespace Owin.Security.ActiveDirectoryLDAP
                         {
                             if (user != null)
                             {
-                                //TODO: Check if the user is still 'valid', delegate?
+                                var isValid = validUser != null
+                                            ? validUser(user)
+                                            : user.IsValid();
 
                                 //// it's a valid user, check the securityStamp to ensure we're using the same "last-login" for this user
                                 //var securityStamp = msIdentity.IdentityExtensions.FindFirstValue(identity, ExtraClaimTypes.SecurityStamp);

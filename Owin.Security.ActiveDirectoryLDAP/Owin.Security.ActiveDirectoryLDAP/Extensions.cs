@@ -48,6 +48,13 @@ namespace Owin.Security.ActiveDirectoryLDAP
         //    return claim.Value;
         //}
 
+        internal static bool IsValid(this UserPrincipal user)//TODO: Output reason?
+        {
+            if (user.IsAccountLockedOut() || user.Enabled == false || (user.AccountExpirationDate ?? DateTime.MaxValue) < DateTime.UtcNow)
+                return false;
+            return true;
+        }
+
         internal static ClaimsIdentity GetClaimsIdentity(this UserPrincipal user, string authenticationType, string domain, string issuer = null, SerializationFormat serializationFormat = SerializationFormat.Json)
         {
             if (user.Guid.HasValue == false)
