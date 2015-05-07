@@ -188,30 +188,36 @@ namespace Owin.Security.ActiveDirectoryLDAP
 
             if (context.SignInAsAuthenticationType != null && context.Identity != null)
             {
-                var signInIdentity = context.Identity;
-                //if (!String.Equals(signInIdentity.AuthenticationType, context.SignInAsAuthenticationType, StringComparison.Ordinal))
-                //{
-                //    signInIdentity = new ClaimsIdentity(signInIdentity.Claims, context.SignInAsAuthenticationType, signInIdentity.NameClaimType, signInIdentity.RoleClaimType);
-                //}
-                //Context.Authentication.SignIn(context.Properties, signInIdentity);
-
                 if (Options.UseStateCookie && Request.Cookies[Options.StateKey] != null)
                     Response.Cookies.Delete(Options.StateKey, new CookieOptions { HttpOnly = true, Secure = Request.IsSecure });
-
-                //Add a provider event handle here to catch the redirect in case we want to do AJAX post back?
-                if (Options.ExternalCallbackPath.HasValue)
+                
+                var signInIdentity = context.Identity;
+                //TODO: If ExternalCallbackPath doesn't have a value, should we be setting the actual session cookie?
+                if (!String.Equals(signInIdentity.AuthenticationType, context.SignInAsAuthenticationType, StringComparison.Ordinal))
                 {
-                    Context.Authentication.SignIn(context.Properties, signInIdentity);
-                    Response.Redirect(Options.ExternalCallbackPath.Value);
-                    context.RequestCompleted();
+                    signInIdentity = new ClaimsIdentity(signInIdentity.Claims, context.SignInAsAuthenticationType, signInIdentity.NameClaimType, signInIdentity.RoleClaimType);
                 }
-                else
-                {
-                    Context.Authentication.SignIn(new ClaimsIdentity(signInIdentity.Claims, context.SignInAsAuthenticationType, signInIdentity.NameClaimType, signInIdentity.RoleClaimType));//properties?
-                    Response.Redirect(String.IsNullOrEmpty(context.RedirectUri) ? "/" : context.RedirectUri);//TODO: Try to get Redirect path from form if there isn't one in the properties?
-                    context.RequestCompleted();
-                }
+                Context.Authentication.SignIn(context.Properties, signInIdentity);
             }
+
+            if (!context.IsRequestCompleted)// && context.RedirectUri != null)
+            {
+                //Add a provider event handle here to catch the redirect in case we want to do AJAX post back?
+                context.RedirectUri = Options.ExternalCallbackPath.HasValue
+                                    ? Options.ExternalCallbackPath.Value
+                                    : String.IsNullOrEmpty(context.RedirectUri)
+                                    ? "/"
+                                    : context.RedirectUri;//TODO: Try to get Redirect path from form if there isn't one in the properties?
+
+                //if (context.Identity == null)
+                //{
+                //    // add a redirect hint that sign-in failed in some way
+                //    context.RedirectUri = WebUtilities.AddQueryString(context.RedirectUri, "error", "access_denied");
+                //}
+                Response.Redirect(context.RedirectUri);
+                context.RequestCompleted();
+            }
+
 
             //if (!context.IsRequestCompleted && context.RedirectUri != null)
             //{
