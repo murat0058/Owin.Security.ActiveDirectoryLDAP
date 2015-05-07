@@ -46,6 +46,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
             return false;
         }
 
+        //Should only be hit in active mode.
         protected override async Task ApplyResponseChallengeAsync()
         {
             if (Response.StatusCode != 401)// || !Options.LoginPath.HasValue)
@@ -70,24 +71,17 @@ namespace Owin.Security.ActiveDirectoryLDAP
             var properties = challenge.Properties;
             if (String.IsNullOrEmpty(properties.RedirectUri))
             {
-                properties.RedirectUri = currentUri;
+                properties.RedirectUri = currentUri;//TODO: I think this is expecting the extenral auth callback url, not the page url (it depends on what mode it is operating in)
             }
 
-            var authenticationEndpoint = WebUtilities.AddQueryString(Options.LoginPath.Value, Options.StateKey, Options.StateDataFormat.Protect(properties));
-
+            var authenticationEndpoint = Options.LoginPath.Value;
             if (Options.UseStateCookie)
-            {
                 Context.Response.Cookies.Append(Options.StateKey, Options.StateDataFormat.Protect(properties), new CookieOptions { HttpOnly = true, Secure = Request.IsSecure });
-                var redirectContext = new LDAPApplyRedirectContext(Context, Options, properties, authenticationEndpoint);
-                //Options.Provider.ApplyRedirect(redirectContext);
-                Response.Redirect(Options.LoginPath.Value);//???
-            }
             else
-            {
-                var redirectContext = new LDAPApplyRedirectContext(Context, Options, properties, authenticationEndpoint);
-                //Options.Provider.ApplyRedirect(redirectContext);
-                Response.Redirect(WebUtilities.AddQueryString(Options.LoginPath.Value, Options.StateKey, Options.StateDataFormat.Protect(properties)));//???
-            }
+                authenticationEndpoint = WebUtilities.AddQueryString(authenticationEndpoint, Options.StateKey, Options.StateDataFormat.Protect(properties));
+
+            var redirectContext = new LDAPApplyRedirectContext(Context, Options, properties, authenticationEndpoint);
+            Options.Provider.ApplyRedirect(redirectContext);
         }
 
         protected override Task ApplyResponseCoreAsync()
@@ -205,7 +199,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
                 //Add a provider event handle here to catch the redirect in case we want to do AJAX post back?
                 context.RedirectUri = Options.ExternalCallbackPath.HasValue
                                     ? Options.ExternalCallbackPath.Value
-                                    : String.IsNullOrEmpty(context.RedirectUri)
+                                    : String.IsNullOrEmpty(context.RedirectUri)//TODO: this RedirectUri is _supposed_ to be the ExternalCallbackPath I think, not the page redirect url.
                                     ? "/"
                                     : context.RedirectUri;//TODO: Try to get Redirect path from form if there isn't one in the properties?
 

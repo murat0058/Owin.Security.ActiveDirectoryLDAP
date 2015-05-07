@@ -26,7 +26,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
             PasswordKey = LDAPAuthenticationDefaults.PasswordKey;
             StateKey = LDAPAuthenticationDefaults.StateKey;//required
             UsernameKey = LDAPAuthenticationDefaults.UsernameKey;
-            UseStateCookie = true;
+            //UseStateCookie = true;
             ValidateAntiForgeryToken = true;
         }
 
