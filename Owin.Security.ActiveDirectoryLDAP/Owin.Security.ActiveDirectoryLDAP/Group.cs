@@ -11,7 +11,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
     [DataContract(Namespace = "http://schemas.wustl.edu/ws/2015/04/activedirectorygroup")]
     public class Group
     {
-        public Group(Principal group)
+        public Group(GroupPrincipal group)
             : this()
         {
             Description = group.Description;

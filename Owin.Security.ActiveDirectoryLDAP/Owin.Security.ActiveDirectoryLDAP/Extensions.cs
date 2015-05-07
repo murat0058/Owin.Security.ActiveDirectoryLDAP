@@ -76,7 +76,13 @@ namespace Owin.Security.ActiveDirectoryLDAP
             identity.AddClaim(new Claim(ClaimTypesAD.SmartcardLogonRequired, user.SmartcardLogonRequired.ToString(), ClaimValueTypes.Boolean));//Deny? How could we handle this.
 
             //Change to ClaimTypes.GroupSid? GroupGuid? We would either need a way to lookup the group based on the sid, or whatever attribute or other mechanism is used to set groups for actions to get and store the sid (e.g. on startup)
-            identity.AddClaims(user.GetAuthorizationGroups().Select(_ => new Group(_).ToClaim(serializationFormat)));//GetGroups = Direct groups, GetAuthorizationGroups = recursive groups (speed?)
+            var securityGroups = user.GetAuthorizationGroups().Cast<GroupPrincipal>();
+            identity.AddClaims(securityGroups.Select(_ => new Group(_).ToClaim(serializationFormat)));//GetGroups = Direct groups, GetAuthorizationGroups = recursive groups (speed?)
+
+            //Is the first group the primary group? It seems so in testing but I'm not sure if that can be relied on.
+            //var primaryGroup = securityGroups.FirstOrDefault();
+            //if (primaryGroup != null)
+            //    identity.AddClaim(new Claim(ClaimTypes.PrimaryGroupSid, primaryGroup.Sid.Value, ClaimValueTypes.Sid));
 
             if (!String.IsNullOrEmpty(user.Description))
                 identity.AddClaim(new Claim(ClaimTypesAD.Description, user.Description, ClaimValueTypes.String));//job title?
