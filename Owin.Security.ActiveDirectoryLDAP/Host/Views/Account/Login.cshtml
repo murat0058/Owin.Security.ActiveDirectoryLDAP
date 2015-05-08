@@ -9,7 +9,7 @@
                 <h4 class="modal-title text-center text-light">Sign in to your account</h4>
             </div>
             <div class="modal-body">
-                <form role="form" method="POST" action="/signin-ldap">
+                <form role="form" method="POST" action="/signin-activedirectoryldap">
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="State" value="@(Request.QueryString["State"])" />
                     <div class="form-group">
