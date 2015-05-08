@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics;
 using System.DirectoryServices.AccountManagement;
 using System.IO;
+using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web.Helpers;
@@ -49,7 +50,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
         //Should only be hit in active mode.
         protected override async Task ApplyResponseChallengeAsync()
         {
-            if (Response.StatusCode != 401 || !Options.LoginPath.HasValue)
+            if (Response.StatusCode != (int)HttpStatusCode.Unauthorized || !Options.LoginPath.HasValue)
                 return;
 
             var challenge = Helper.LookupChallenge(Options.AuthenticationType, Options.AuthenticationMode);
