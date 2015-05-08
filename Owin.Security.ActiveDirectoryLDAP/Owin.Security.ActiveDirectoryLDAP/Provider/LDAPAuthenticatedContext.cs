@@ -16,49 +16,15 @@ namespace Owin.Security.ActiveDirectoryLDAP
         /// Initializes a <see cref="LDAPAuthenticatedContext"/>
         /// </summary>
         /// <param name="context">The OWIN environment</param>
-        /// <param name="userId">LDAP user ID</param>
-        /// <param name="screenName">LDAP screen name</param>
-        /// <param name="accessToken">LDAP access token</param>
-        /// <param name="accessTokenSecret">LDAP access token secret</param>
-        public LDAPAuthenticatedContext(
-            IOwinContext context,
-            string userId,
-            string screenName,
-            string accessToken,
-            string accessTokenSecret)
+        public LDAPAuthenticatedContext(IOwinContext context)
             : base(context)
         {
-            UserId = userId;
-            ScreenName = screenName;
-            AccessToken = accessToken;
-            AccessTokenSecret = accessTokenSecret;
         }
-
-        /// <summary>
-        /// Gets the LDAP user ID
-        /// </summary>
-        public string UserId { get; private set; }
-
-        /// <summary>
-        /// Gets the LDAP screen name
-        /// </summary>
-        public string ScreenName { get; private set; }
-
-        /// <summary>
-        /// Gets the LDAP access token
-        /// </summary>
-        public string AccessToken { get; private set; }
-
-        /// <summary>
-        /// Gets the LDAP access token secret
-        /// </summary>
-        public string AccessTokenSecret { get; private set; }
 
         /// <summary>
         /// Gets the <see cref="ClaimsIdentity"/> representing the user
         /// </summary>
         public ClaimsIdentity Identity { get; set; }
-
         /// <summary>
         /// Gets or sets a property bag for common authentication properties
         /// </summary>

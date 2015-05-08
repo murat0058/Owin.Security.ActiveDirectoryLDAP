@@ -147,7 +147,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
                     ClaimsIdentity identity;
                     if (TryValidateCredentials(domain, username, password, out identity))//TODO: Pass back proper error reason
                     {
-                        var context = new LDAPAuthenticatedContext(Context, null, null, null, null);
+                        var context = new LDAPAuthenticatedContext(Context);
                         context.Identity = identity;
                         context.Properties = Options.StateDataFormat.Unprotect(state);
 
