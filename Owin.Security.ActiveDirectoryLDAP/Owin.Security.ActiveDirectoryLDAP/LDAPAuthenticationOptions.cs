@@ -20,7 +20,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
             AntiForgeryFieldName = LDAPAuthenticationDefaults.AntiForgeryFieldName;
             AuthenticationMode = AuthenticationMode.Active;
             CallbackPath = new PathString("/signin-activedirectoryldap");
-            Description.Caption = LDAPAuthenticationDefaults.Caption;
+            Caption = LDAPAuthenticationDefaults.Caption;
             DomainKey = LDAPAuthenticationDefaults.DomainKey;
             Domains = new List<DomainCredential>();
             PasswordKey = LDAPAuthenticationDefaults.PasswordKey;
@@ -41,6 +41,14 @@ namespace Owin.Security.ActiveDirectoryLDAP
         /// The path to post back the login information to.
         /// </summary>
         public PathString CallbackPath { get; set; }
+        /// <summary>
+        /// Get or sets the text that the user can display on a sign in user interface.
+        /// </summary>
+        public string Caption
+        {
+            get { return Description.Caption; }
+            set { Description.Caption = value; }
+        }
         /// <summary>
         /// The form input name of the domain field; used if no domain is included with the username.
         /// </summary>
@@ -74,7 +82,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
         /// </summary>
         public SerializationFormat SerializationFormat { get; set; }
         /// <summary>
-        ///
+        /// Gets or sets the name of another authentication middleware which will be responsible for actually issuing a user <see cref="System.Security.Claims.ClaimsIdentity"/>.
         /// </summary>
         public string SignInAsAuthenticationType { get; set; }//What?
         /// <summary>
