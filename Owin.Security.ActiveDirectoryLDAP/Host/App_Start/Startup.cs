@@ -20,7 +20,7 @@ namespace Host
             {
                 CookieName = "Session",
                 AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
-                //LoginPath = new PathString("/Home/Login"),
+                //LoginPath = new PathString("/Account/Login"),
                 Provider = new CookieAuthenticationProvider
                 {
                     //TODO: Can we somehow access the domains from options or generate this from options instead of needing the list in both places?
@@ -33,7 +33,7 @@ namespace Host
             app.UseLDAPAuthentication(new LDAPAuthenticationOptions
             {
                 Domains = MvcApplication.DomainCredentials,
-                LoginPath = new PathString("/Home/Login"),
+                LoginPath = new PathString("/Account/Login"),
                 //AuthenticationMode = AuthenticationMode.Passive,
                 //SignInAsAuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,//This or SetDefaultSignInAsAuthenticationType required if no RedirectPath specified. (i.e. interally set application cookie)
                 RedirectPath = new PathString("/Account/ExternalLoginCallback"),

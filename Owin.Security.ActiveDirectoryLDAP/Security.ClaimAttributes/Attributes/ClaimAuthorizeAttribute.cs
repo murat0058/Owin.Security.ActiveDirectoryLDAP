@@ -7,6 +7,7 @@ using mvc = System.Web.Mvc;
 
 namespace Security.ClaimAttributes.Mvc
 {
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, Inherited = true, AllowMultiple = true)]
     public class ClaimAuthorizeAttribute : mvc.AuthorizeAttribute
     {
         private string ClaimType { get; set; }
@@ -58,6 +59,7 @@ namespace Security.ClaimAttributes.Mvc
 
 namespace Security.ClaimAttributes.Http
 {
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, Inherited = true, AllowMultiple = true)]
     public class ClaimAuthorizeAttribute : http.AuthorizeAttribute
     {
         private string ClaimType { get; set; }
