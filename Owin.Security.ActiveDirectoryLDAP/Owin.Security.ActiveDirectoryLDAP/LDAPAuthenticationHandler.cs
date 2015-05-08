@@ -142,7 +142,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
 
                     var state = Options.UseStateCookie
                         ? Request.Cookies[Options.StateKey]//Check form/query if not present?
-                        : form.Get(Options.StateKey) ?? Request.Query[Options.StateKey];//TODO: Check referer header as last ditch?
+                        : form.Get(Options.StateKey) ?? Request.Query[Options.StateKey];
 
                     ClaimsIdentity identity;
                     if (TryValidateCredentials(domain, username, password, out identity))//TODO: Pass back proper error reason
@@ -179,6 +179,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
             if (model == null)
             {
                 //TODO: Construct proper redirect back to login page if we failed, also need to handle ajax responses or have some handler so a user can do it as well.
+                //If we pass back another 401 will that take us back properly? what about the error message?
                 //e.g. await Options.Provider.ReturnEndpoint(context);
                 //TODO: Where would we send them back if they are using passive mode?
                 Response.Redirect(WebUtilities.AddQueryString(Options.LoginPath.Value, "error", "access_denied"));

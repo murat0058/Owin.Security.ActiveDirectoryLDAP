@@ -38,7 +38,6 @@ namespace Owin.Security.ActiveDirectoryLDAP
             Username = username;
         }
 
-        //TODO: Handle switchoff between SecureConnection and Domain with a given port, which takes prescedence? throw when trying to set missmatch?
         public string Container { get; set; }
         public string Domain { get; set; }//Strip port number/change SecureConnection based on it?
         public string Name { get; set; }
