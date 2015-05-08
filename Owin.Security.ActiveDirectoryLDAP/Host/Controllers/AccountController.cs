@@ -27,7 +27,9 @@ namespace Host.Controllers
 
             AuthenticationManager.SignOut(DefaultAuthenticationTypes.ExternalCookie);
             AuthenticationManager.SignIn(new ClaimsIdentity(loginInfo.ExternalIdentity.Claims, DefaultAuthenticationTypes.ApplicationCookie));
-            return Redirect("/");//TODO: Get redirect url.
+
+            var redirectUrl = Url.IsLocalUrl(returnUrl) ? returnUrl : "/";
+            return Redirect(redirectUrl);
         }
 
         public ActionResult Login()
