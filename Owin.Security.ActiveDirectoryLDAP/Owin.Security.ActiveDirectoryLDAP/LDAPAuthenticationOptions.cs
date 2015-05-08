@@ -24,6 +24,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
             DomainKey = LDAPAuthenticationDefaults.DomainKey;
             Domains = new List<DomainCredential>();
             PasswordKey = LDAPAuthenticationDefaults.PasswordKey;
+            ReturnUrlParameter = LDAPAuthenticationDefaults.ReturnUrlParameter;
             StateKey = LDAPAuthenticationDefaults.StateKey;
             UsernameKey = LDAPAuthenticationDefaults.UsernameKey;
             ValidateAntiForgeryToken = true;
@@ -77,6 +78,11 @@ namespace Owin.Security.ActiveDirectoryLDAP
         /// The path to redirect to for setting the local authentication cookie when being used in passive (external) mode.
         /// </summary>
         public PathString RedirectPath { get; set; }
+        /// <summary>
+        /// The ReturnUrlParameter determines the name of the query string parameter which is appended by the middleware
+        /// to the RedirectPath if local authentication is being performed externally to the middleware.
+        /// </summary>
+        public string ReturnUrlParameter { get; set; }
         /// <summary>
         /// The serialization format to use in claims.
         /// </summary>

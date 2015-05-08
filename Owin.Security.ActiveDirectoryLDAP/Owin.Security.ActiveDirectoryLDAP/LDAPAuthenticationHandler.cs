@@ -68,20 +68,30 @@ namespace Owin.Security.ActiveDirectoryLDAP
                 Request.Path +
                 Request.QueryString;
 
+            var loginUri =
+                baseUri +
+                Options.LoginPath;// +
+                //new QueryString(Options.ReturnUrlParameter, currentUri);
+
+            var redirectUri = Options.RedirectPath.HasValue
+                            ? baseUri + Options.RedirectPath + new QueryString(Options.ReturnUrlParameter, currentUri)
+                            : currentUri;
+
             // Save the original challenge URI so we can redirect back to it when we're done.
             var properties = challenge.Properties;
             if (String.IsNullOrEmpty(properties.RedirectUri))
             {
-                properties.RedirectUri = currentUri;//TODO: I think this is expecting the extenral auth callback url, not the page url (it depends on what mode it is operating in)
+                properties.RedirectUri = redirectUri;
             }
 
+            //Stick ReturnUrl into the dictionary?
             //properties.Dictionary["ReturnUrl"] = currentUri;
 
-            var authenticationEndpoint = Options.LoginPath.Value;
+            var authenticationEndpoint = loginUri;
             if (Options.UseStateCookie)
                 Context.Response.Cookies.Append(Options.StateKey, Options.StateDataFormat.Protect(properties), new CookieOptions { HttpOnly = true, Secure = Request.IsSecure });
             else
-                authenticationEndpoint = WebUtilities.AddQueryString(authenticationEndpoint, Options.StateKey, Options.StateDataFormat.Protect(properties));
+                authenticationEndpoint = WebUtilities.AddQueryString(loginUri, Options.StateKey, Options.StateDataFormat.Protect(properties));
 
             var redirectContext = new LDAPApplyRedirectContext(Context, Options, properties, authenticationEndpoint);
             Options.Provider.ApplyRedirect(redirectContext);
@@ -201,11 +211,13 @@ namespace Owin.Security.ActiveDirectoryLDAP
             if (!context.IsRequestCompleted)// && context.RedirectUri != null)
             {
                 //Add a provider event handle here to catch the redirect in case we want to do AJAX post back?
-                context.RedirectUri = Options.RedirectPath.HasValue
+
+                //This could get messed up if they go directly to the login page or somehow post back with no state.
+                context.RedirectUri = !String.IsNullOrEmpty(context.RedirectUri)//Should we just use the RedirectUri for the ReturnUrl since we know RedirectPath in both places?
+                                    ? context.RedirectUri
+                                    : Options.RedirectPath.HasValue
                                     ? Options.RedirectPath.Value
-                                    : String.IsNullOrEmpty(context.RedirectUri)//TODO: this RedirectUri is _supposed_ to be the ExternalCallbackPath I think, not the page redirect url.
-                                    ? "/"
-                                    : context.RedirectUri;//TODO: Try to get Redirect path from form if there isn't one in the properties?
+                                    : "/";//TODO: Try to get Redirect path from form if there isn't one in the properties?
 
                 //if (context.Identity == null)
                 //{

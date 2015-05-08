@@ -28,6 +28,10 @@ namespace Owin.Security.ActiveDirectoryLDAP
         /// </summary>
         public const string PasswordKey = "Password";
         /// <summary>
+        /// The default value of the LDAPAuthenticationOptions.ReturnUrlParameter
+        /// </summary>
+        public const string ReturnUrlParameter = "ReturnUrl";
+        /// <summary>
         /// The default form input name for the domain component of the user login credentials, used if one is not included as part of the username.
         /// </summary>
         public const string DomainKey = "Domain";
