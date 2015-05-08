@@ -112,9 +112,31 @@ namespace Owin.Security.ActiveDirectoryLDAP
                         {
                             if (user != null)
                             {
+                                //SecurityStamp?
                                 var isValid = validUser != null
                                             ? validUser(user)
                                             : user.IsValid();
+
+                                if (isValid)
+                                {
+                                    //TODO: _Really_ not sure about this. Update old types with new values, keep old types without new values.
+                                    var oldClaims = identity.Claims.ToList();
+                                    var oldClaimTypes = oldClaims.Select(_ => _.Type).ToList();
+                                    var newClaims = user.GetClaims().Where(_ => oldClaimTypes.Contains(_.Type)).ToList();
+                                    var newClaimTypes = newClaims.Select(_ => _.Type).ToList();
+                                    foreach (var oldClaim in oldClaims.Where(_ => !newClaimTypes.Contains(_.Type)))
+                                    {
+                                        newClaims.Add(oldClaim);
+                                    }
+
+                                    identity = new ClaimsIdentity(newClaims, identity.AuthenticationType);
+
+                                    if (identity != null)
+                                    {
+                                        baseContext.OwinContext.Authentication.SignIn(identity);
+                                        return identity;
+                                    }
+                                }
 
                                 //// it's a valid user, check the securityStamp to ensure we're using the same "last-login" for this user
                                 //var securityStamp = msIdentity.IdentityExtensions.FindFirstValue(identity, ExtraClaimTypes.SecurityStamp);
