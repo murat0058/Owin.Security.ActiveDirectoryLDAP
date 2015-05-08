@@ -19,7 +19,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
             AntiForgeryCookieName = AntiForgeryConfig.CookieName;
             AntiForgeryFieldName = LDAPAuthenticationDefaults.AntiForgeryFieldName;
             AuthenticationMode = AuthenticationMode.Active;
-            CallbackPath = new PathString("/signin-ldap");
+            CallbackPath = new PathString("/signin-activedirectoryldap");
             Description.Caption = LDAPAuthenticationDefaults.Caption;
             DomainKey = LDAPAuthenticationDefaults.DomainKey;
             Domains = new List<DomainCredential>();
