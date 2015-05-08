@@ -12,7 +12,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
 {
     public class LDAPAuthenticationOptions : AuthenticationOptions
     {
-        //TODO: More/better constructors, securestring password? should we bother?
+        //TODO: Include/exclude lists for claims?
         public LDAPAuthenticationOptions()
             : base(LDAPAuthenticationDefaults.AuthenticationType)
         {
@@ -24,9 +24,8 @@ namespace Owin.Security.ActiveDirectoryLDAP
             DomainKey = LDAPAuthenticationDefaults.DomainKey;
             Domains = new List<DomainCredential>();
             PasswordKey = LDAPAuthenticationDefaults.PasswordKey;
-            StateKey = LDAPAuthenticationDefaults.StateKey;//required
+            StateKey = LDAPAuthenticationDefaults.StateKey;
             UsernameKey = LDAPAuthenticationDefaults.UsernameKey;
-            //UseStateCookie = true;
             ValidateAntiForgeryToken = true;
         }
 

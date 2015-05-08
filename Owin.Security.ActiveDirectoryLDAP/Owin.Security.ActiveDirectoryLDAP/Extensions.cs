@@ -77,7 +77,8 @@ namespace Owin.Security.ActiveDirectoryLDAP
 
             //Change to ClaimTypes.GroupSid? GroupGuid? We would either need a way to lookup the group based on the sid, or whatever attribute or other mechanism is used to set groups for actions to get and store the sid (e.g. on startup)
             var securityGroups = user.GetAuthorizationGroups().Cast<GroupPrincipal>();
-            identity.AddClaims(securityGroups.Select(_ => new Group(_).ToClaim(serializationFormat)));//GetGroups = Direct groups, GetAuthorizationGroups = recursive groups (speed?)
+            identity.AddClaims(securityGroups.Select(_ => new Group(_).ToClaim(serializationFormat)));
+            //identity.AddClaims(securityGroups.Select(_ => new Claim(ClaimTypes.GroupSid, _.Sid.Value, ClaimValueTypes.Sid)));
 
             //Is the first group the primary group? It seems so in testing but I'm not sure if that can be relied on.
             //var primaryGroup = securityGroups.FirstOrDefault();

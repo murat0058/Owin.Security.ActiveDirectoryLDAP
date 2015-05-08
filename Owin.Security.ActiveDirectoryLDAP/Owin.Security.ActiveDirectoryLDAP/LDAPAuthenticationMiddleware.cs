@@ -15,14 +15,14 @@ namespace Owin.Security.ActiveDirectoryLDAP
         public LDAPAuthenticationMiddleware(OwinMiddleware next, IAppBuilder app, LDAPAuthenticationOptions options)
             : base(next, options)
         {
-            //if (string.IsNullOrWhiteSpace(Options.ConsumerSecret))
-            //{
-            //    throw new ArgumentException(String.Format(CultureInfo.CurrentCulture, Resources.Exception_OptionMustBeProvided, "ConsumerSecret"));
-            //}
-            //if (string.IsNullOrWhiteSpace(Options.ConsumerKey))
-            //{
-            //    throw new ArgumentException(String.Format(CultureInfo.CurrentCulture, Resources.Exception_OptionMustBeProvided, "ConsumerKey"));
-            //}
+            if (String.IsNullOrWhiteSpace(Options.PasswordKey))
+                throw new ArgumentException("Missing required password key.", "PasswordKey");
+            if (String.IsNullOrWhiteSpace(Options.StateKey))
+                throw new ArgumentException("Missing required state key.", "StateKey");
+            if (String.IsNullOrWhiteSpace(Options.UsernameKey))
+                throw new ArgumentException("Missing required username key.", "UsernameKey");
+            if (!options.CallbackPath.HasValue || String.IsNullOrWhiteSpace(Options.CallbackPath.Value))
+                throw new ArgumentException("Missing required callback path.", "CallbackPath");
 
             if (options.Provider == null)
             {
