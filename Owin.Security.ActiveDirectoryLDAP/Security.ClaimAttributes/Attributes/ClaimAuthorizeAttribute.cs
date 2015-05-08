@@ -27,7 +27,7 @@ namespace Security.ClaimAttributes.Mvc
             }
 
             var user = httpContext.User as ClaimsPrincipal;
-            if (user == null ||user.Identity == null || !user.Identity.IsAuthenticated)
+            if (user == null || user.Identity == null || !user.Identity.IsAuthenticated)
             {
                 return false;
             }

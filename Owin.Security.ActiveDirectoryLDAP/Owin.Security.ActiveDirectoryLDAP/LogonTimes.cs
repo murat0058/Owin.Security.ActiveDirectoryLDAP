@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -159,7 +158,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
         /// </summary>
         [DataMember]
         public uint StartMinutes { get; private set; }
-        
+
         public LogonTime(DayOfWeek dayOfWeek, LogonTimeUnit unit, uint startPeriod)
         {
             if (unit == LogonTimeUnit.Days && startPeriod > 0)//Just ignore it?

@@ -187,7 +187,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
             {
                 if (Options.UseStateCookie && Request.Cookies[Options.StateKey] != null)
                     Response.Cookies.Delete(Options.StateKey, new CookieOptions { HttpOnly = true, Secure = Request.IsSecure });
-                
+
                 var signInIdentity = context.Identity;
                 //TODO: If ExternalCallbackPath doesn't have a value, should we be setting the actual session cookie?
                 if (!String.Equals(signInIdentity.AuthenticationType, context.SignInAsAuthenticationType, StringComparison.Ordinal))
@@ -214,7 +214,6 @@ namespace Owin.Security.ActiveDirectoryLDAP
                 Response.Redirect(context.RedirectUri);
                 context.RequestCompleted();
             }
-
 
             //if (!context.IsRequestCompleted && context.RedirectUri != null)
             //{

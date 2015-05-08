@@ -1,7 +1,6 @@
 ﻿using System;
 using Microsoft.AspNet.Identity;
 using Microsoft.Owin;
-using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.Cookies;
 using Owin;
 using Owin.Security.ActiveDirectoryLDAP;

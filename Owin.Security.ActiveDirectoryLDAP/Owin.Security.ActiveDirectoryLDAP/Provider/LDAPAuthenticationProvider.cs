@@ -71,8 +71,6 @@ namespace Owin.Security.ActiveDirectoryLDAP
             OnApplyRedirect(context);
         }
 
-
-
         //Put this someplace else?
         public static Func<CookieValidateIdentityContext, Task> OnValidateIdentity(IList<DomainCredential> domains, TimeSpan validateInterval, Func<UserPrincipal, bool> validUser = null)
         {
