@@ -39,21 +39,6 @@ namespace Security.ClaimAttributes.Mvc
 
             return true;
         }
-
-        protected override void HandleUnauthorizedRequest(mvc.AuthorizationContext filterContext)
-        {
-            base.HandleUnauthorizedRequest(filterContext);
-        }
-
-        public override void OnAuthorization(mvc.AuthorizationContext filterContext)
-        {
-            base.OnAuthorization(filterContext);
-        }
-
-        protected override HttpValidationStatus OnCacheAuthorization(HttpContextBase httpContext)
-        {
-            return base.OnCacheAuthorization(httpContext);
-        }
     }
 }
 
@@ -69,11 +54,6 @@ namespace Security.ClaimAttributes.Http
         {
             ClaimType = type;
             ClaimValue = value;
-        }
-
-        protected override void HandleUnauthorizedRequest(HttpActionContext actionContext)
-        {
-            base.HandleUnauthorizedRequest(actionContext);
         }
 
         protected override bool IsAuthorized(HttpActionContext actionContext)
@@ -96,11 +76,6 @@ namespace Security.ClaimAttributes.Http
             }
 
             return true;
-        }
-
-        public override void OnAuthorization(HttpActionContext actionContext)
-        {
-            base.OnAuthorization(actionContext);
         }
     }
 }
