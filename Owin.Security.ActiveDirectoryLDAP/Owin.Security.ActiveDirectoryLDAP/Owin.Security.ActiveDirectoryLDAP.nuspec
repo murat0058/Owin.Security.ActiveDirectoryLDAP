@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
-        <id>Owin.Security.ActiveDirectoryLDAP</id>
-        <version>1.0.5609.26878</version>
+        <id>$id$</id>
+        <version>$version$</version>
         <authors>Aaron Papp</authors>
         <licenseUrl>https://github.com/PCFDev/Owin.Security.ActiveDirectoryLDAP/blob/master/LICENSE.md</licenseUrl>
         <projectUrl>https://github.com/PCFDev/Owin.Security.ActiveDirectoryLDAP</projectUrl>
         <requireLicenseAcceptance>true</requireLicenseAcceptance>
-        <description>An OWIN authentication middleware using LDAP to connect to an ActiveDirectory instance.</description>
+        <description>$description$</description>
         <copyright>Copyright © WUSM 2015</copyright>
         <language>en-US</language>
         <tags>owin active directory ldap</tags>
@@ -31,6 +31,6 @@
         </frameworkAssemblies>
     </metadata>
     <files>
-        <file src="Owin.Security.ActiveDirectoryLDAP\bin\Release\Owin.Security.ActiveDirectoryLDAP.dll" target="lib\net45\Owin.Security.ActiveDirectoryLDAP.dll" />
+        <file src="bin\Release\$id$.dll" target="lib\net45\$id$.dll" />
     </files>
 </package>
