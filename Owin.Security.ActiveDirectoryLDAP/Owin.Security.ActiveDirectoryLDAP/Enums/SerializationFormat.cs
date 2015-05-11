@@ -7,11 +7,4 @@ namespace Owin.Security.ActiveDirectoryLDAP
         Json = 0,
         Xml = 1
     }
-
-    public enum LogonTimeUnit : short
-    {
-        Days,
-        Hours,
-        Minutes
-    }
 }

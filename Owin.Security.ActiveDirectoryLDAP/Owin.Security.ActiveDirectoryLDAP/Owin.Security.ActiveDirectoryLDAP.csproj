@@ -59,24 +59,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DomainCredential.cs" />
-    <Compile Include="Extensions.cs" />
-    <Compile Include="Group.cs" />
-    <Compile Include="Enums.cs" />
+    <Compile Include="DTO\DomainCredential.cs" />
+    <Compile Include="Enums\SerializationFormat.cs" />
+    <Compile Include="Helpers\Extensions.cs" />
+    <Compile Include="DTO\Group.cs" />
+    <Compile Include="Enums\LogonTimeUnit.cs" />
     <Compile Include="LDAPAuthenticationDefaults.cs" />
     <Compile Include="LDAPAuthenticationExtensions.cs" />
     <Compile Include="LDAPAuthenticationHandler.cs" />
     <Compile Include="LDAPAuthenticationMiddleware.cs" />
     <Compile Include="LDAPAuthenticationOptions.cs" />
     <Compile Include="LDAPClaimTypes.cs" />
-    <Compile Include="LogonTimes.cs" />
+    <Compile Include="DTO\LogonTimes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Provider\ILDAPAuthenticationProvider.cs" />
     <Compile Include="Provider\LDAPApplyRedirectContext.cs" />
     <Compile Include="Provider\LDAPAuthenticatedContext.cs" />
     <Compile Include="Provider\LDAPAuthenticationProvider.cs" />
     <Compile Include="Provider\LDAPReturnEndpointContext.cs" />
-    <Compile Include="User.cs" />
+    <Compile Include="DTO\User.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">
