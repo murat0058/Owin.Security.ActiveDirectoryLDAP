@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Owin.Security.ActiveDirectoryLDAP")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("An OWIN authentication middleware using LDAP to connect to an ActiveDirectory instance.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Owin.Security.ActiveDirectoryLDAP")]
-[assembly: AssemblyCopyright("Copyright ©  2015")]
+[assembly: AssemblyCopyright("Copyright © 2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

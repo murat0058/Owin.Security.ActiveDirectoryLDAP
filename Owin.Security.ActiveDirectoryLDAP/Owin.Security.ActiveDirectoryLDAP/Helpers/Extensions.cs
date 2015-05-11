@@ -33,22 +33,6 @@ namespace Owin.Security.ActiveDirectoryLDAP
             return claim.Value;
         }
 
-        //internal static string GetUserGuid(this ClaimsIdentity identity)
-        //{
-        //    var claim = identity.Claims.SingleOrDefault(_ => _.Type == ClaimTypes.NameIdentifier);
-        //    if (claim == null)
-        //        return default(string);
-        //    return claim.Value;
-        //}
-
-        //internal static string GetUserSid(this ClaimsIdentity identity)
-        //{
-        //    var claim = identity.Claims.SingleOrDefault(_ => _.Type == ClaimTypes.NameIdentifier);
-        //    if (claim == null)
-        //        return default(string);
-        //    return claim.Value;
-        //}
-
         internal static bool IsValid(this UserPrincipal user)//TODO: Output reason?
         {
             if (user.IsAccountLockedOut() || user.Enabled == false || (user.AccountExpirationDate ?? DateTime.MaxValue) < DateTime.UtcNow)
@@ -67,12 +51,13 @@ namespace Owin.Security.ActiveDirectoryLDAP
 
             var claims = new List<Claim>();
 
-            //This is required for ASP.NET Identity, it should be a value unique to each user.
+            //This is required for ASP.NET Identity, it should be a value unique to each user. https://technet.microsoft.com/en-us/library/cc961625.aspx SID can change "sometimes", Guid should never change.
             claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Guid.Value.ToString(), ClaimValueTypes.String));
+
             claims.Add(new Claim(ClaimTypes.PrimarySid, user.Sid.Value, ClaimValueTypes.Sid));
             claims.Add(new Claim(ClaimTypesAD.BadLogonCount, user.BadLogonCount.ToString(), ClaimValueTypes.Integer32));//can this be set via a webapp? part of ValidateCredentials?
             claims.Add(new Claim(ClaimTypesAD.Enabled, (user.Enabled ?? false).ToString(), ClaimValueTypes.Boolean));//default? is a null value considered disabled?
-            claims.Add(new Claim(ClaimTypesAD.Guid, user.Guid.Value.ToString(), ClaimValueTypes.String));//unique per user? vs SID? https://technet.microsoft.com/en-us/library/cc961625.aspx sid can change "sometimes"
+            claims.Add(new Claim(ClaimTypesAD.Guid, user.Guid.Value.ToString(), ClaimValueTypes.String));
             claims.Add(new Claim(ClaimTypesAD.LockedOut, user.IsAccountLockedOut().ToString(), ClaimValueTypes.Boolean));
             claims.Add(new Claim(ClaimTypesAD.SmartcardLogonRequired, user.SmartcardLogonRequired.ToString(), ClaimValueTypes.Boolean));//Deny? How could we handle this.
 
