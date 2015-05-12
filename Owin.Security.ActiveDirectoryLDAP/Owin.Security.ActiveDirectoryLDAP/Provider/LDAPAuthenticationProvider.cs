@@ -115,7 +115,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
                                 //SecurityStamp?
                                 var isValid = validUser != null
                                             ? validUser(user)
-                                            : user.IsValid();
+                                            : user.IsValid() && identity.GetUserSid() == user.Sid;
 
                                 if (isValid)
                                 {
