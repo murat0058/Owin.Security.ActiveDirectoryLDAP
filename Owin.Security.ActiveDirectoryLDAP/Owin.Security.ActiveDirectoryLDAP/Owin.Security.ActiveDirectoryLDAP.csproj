@@ -82,6 +82,7 @@
     <Compile Include="DTO\User.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Owin.Security.ActiveDirectoryLDAP.nuspec" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
