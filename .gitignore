@@ -1,7 +1,7 @@
 #Project Specific
 */packages/
 **/Secure*.config
-**/Owin.Security.ActiveDirectoryLDAP.*.nupkg
+*.nupkg
 
 #################
 ## Eclipse
