@@ -3,9 +3,12 @@
     <metadata>
         <id>$id$</id>
         <version>$version$</version>
+        <title>$id$</title>
         <authors>Aaron Papp</authors>
+        <owners>$author$</owners>
         <licenseUrl>https://github.com/PCFDev/Owin.Security.ActiveDirectoryLDAP/blob/master/LICENSE.md</licenseUrl>
         <projectUrl>https://github.com/PCFDev/Owin.Security.ActiveDirectoryLDAP</projectUrl>
+        <iconUrl>https://avatars0.githubusercontent.com/u/10945804?s=128</iconUrl>
         <requireLicenseAcceptance>true</requireLicenseAcceptance>
         <description>$description$</description>
         <copyright>Copyright © WUSM 2015</copyright>
@@ -18,19 +21,19 @@
             <dependency id="Owin" version="1.0" />
         </dependencies>
         <frameworkAssemblies>
-            <frameworkAssembly assemblyName="Microsoft.CSharp" targetFramework="" />
-            <frameworkAssembly assemblyName="System" targetFramework="" />
-            <frameworkAssembly assemblyName="System.Core" targetFramework="" />
-            <frameworkAssembly assemblyName="System.Data" targetFramework="" />
-            <frameworkAssembly assemblyName="System.Data.DataSetExtensions" targetFramework="" />
-            <frameworkAssembly assemblyName="System.DirectoryServices.AccountManagement" targetFramework="" />
-            <frameworkAssembly assemblyName="System.Runtime.Serialization" targetFramework="" />
-            <frameworkAssembly assemblyName="System.Web" targetFramework="" />
-            <frameworkAssembly assemblyName="System.Web.WebPages" targetFramework="" />
-            <frameworkAssembly assemblyName="System.Xml" targetFramework="" />
+            <frameworkAssembly assemblyName="Microsoft.CSharp" />
+            <frameworkAssembly assemblyName="System" />
+            <frameworkAssembly assemblyName="System.Core" />
+            <frameworkAssembly assemblyName="System.Data" />
+            <frameworkAssembly assemblyName="System.Data.DataSetExtensions" />
+            <frameworkAssembly assemblyName="System.DirectoryServices.AccountManagement" />
+            <frameworkAssembly assemblyName="System.Runtime.Serialization" />
+            <frameworkAssembly assemblyName="System.Web" />
+            <frameworkAssembly assemblyName="System.Web.WebPages" />
+            <frameworkAssembly assemblyName="System.Xml" />
         </frameworkAssemblies>
     </metadata>
     <files>
-        <file src="bin\Release\$id$.dll" target="lib\net45\$id$.dll" />
+        <file src="$targetpath$" target="lib\net45\" />
     </files>
 </package>
