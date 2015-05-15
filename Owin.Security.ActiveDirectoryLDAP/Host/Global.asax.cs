@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Security.Claims;
+using System.Web.Helpers;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
@@ -16,6 +18,8 @@ namespace Host
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+
+            AntiForgeryConfig.UniqueClaimTypeIdentifier = ClaimTypes.NameIdentifier;//Should we just set the identityprovider claim?
         }
 
         private static IList<DomainCredential> s_DomainCredentials { get; set; }
