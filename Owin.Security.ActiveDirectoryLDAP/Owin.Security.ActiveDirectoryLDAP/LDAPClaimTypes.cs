@@ -29,6 +29,9 @@ namespace Owin.Security.ActiveDirectoryLDAP
         public const string VoicePhone = ClaimTypeNamespace + "/voicephone";
 
         private const string ClaimTypeNamespace = "http://schemas.wustl.edu/ws/2015/04/identity/claims";
+
+        //Special case
+        public const string IdentityProvider = "http://schemas.microsoft.com/accesscontrolservice/2010/07/claims/IdentityProvider";
     }
 
     //public static class ClaimValueTypesAD

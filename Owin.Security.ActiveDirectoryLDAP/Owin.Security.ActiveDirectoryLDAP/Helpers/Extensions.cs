@@ -19,7 +19,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
 
         internal static SecurityIdentifier GetUserSid(this ClaimsIdentity identity)
         {
-            var claim = identity.Claims.SingleOrDefault(_ => _.Type == ClaimTypes.NameIdentifier);
+            var claim = identity.Claims.SingleOrDefault(_ => _.Type == ClaimTypes.PrimarySid);
             if (claim == null)
                 return default(SecurityIdentifier);
             return new SecurityIdentifier(claim.Value);
@@ -53,6 +53,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
 
             //This is required for ASP.NET Identity, it should be a value unique to each user. https://technet.microsoft.com/en-us/library/cc961625.aspx SID can change "sometimes", Guid should never change.
             claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Guid.Value.ToString(), ClaimValueTypes.String));
+            //claims.Add(new Claim(ClaimTypesAD.IdentityProvider, user.Guid.Value.ToString(), ClaimValueTypes.String));
 
             claims.Add(new Claim(ClaimTypes.PrimarySid, user.Sid.Value, ClaimValueTypes.Sid));
             claims.Add(new Claim(ClaimTypesAD.BadLogonCount, user.BadLogonCount.ToString(), ClaimValueTypes.Integer32));//can this be set via a webapp? part of ValidateCredentials?
