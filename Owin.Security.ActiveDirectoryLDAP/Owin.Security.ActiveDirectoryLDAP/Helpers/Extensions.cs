@@ -33,9 +33,9 @@ namespace Owin.Security.ActiveDirectoryLDAP
             return claim.Value;
         }
 
-        internal static bool IsValid(this UserPrincipal user)//TODO: Output reason?
+        internal static bool IsValid(this UserPrincipal user, SecurityIdentifier sid = null)//TODO: Output reason?
         {
-            if (user.IsAccountLockedOut() || user.Enabled == false || (user.AccountExpirationDate ?? DateTime.MaxValue) < DateTime.UtcNow)
+            if (user.IsAccountLockedOut() || user.Enabled == false || (user.AccountExpirationDate ?? DateTime.MaxValue) < DateTime.UtcNow || (sid != null && user.Sid != sid))
                 return false;
             return true;
         }

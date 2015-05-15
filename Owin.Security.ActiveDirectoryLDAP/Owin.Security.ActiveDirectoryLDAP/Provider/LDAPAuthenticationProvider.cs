@@ -72,7 +72,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
         }
 
         //Put this someplace else?
-        public static Func<CookieValidateIdentityContext, Task> OnValidateIdentity(IList<DomainCredential> domains, TimeSpan validateInterval, Func<UserPrincipal, bool> validUser = null)
+        public static Func<CookieValidateIdentityContext, Task> OnValidateIdentity(IList<DomainCredential> domains, TimeSpan validateInterval, Func<UserPrincipal, bool> validUser = null, bool checkSid = true)
         {
             return (Func<CookieValidateIdentityContext, Task>)(async cookie =>
             {
@@ -115,7 +115,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
                                 //SecurityStamp?
                                 var isValid = validUser != null
                                             ? validUser(user)
-                                            : user.IsValid() && identity.GetUserSid() == user.Sid;
+                                            : user.IsValid(checkSid ? identity.GetUserSid() : null);
 
                                 if (isValid)
                                 {
