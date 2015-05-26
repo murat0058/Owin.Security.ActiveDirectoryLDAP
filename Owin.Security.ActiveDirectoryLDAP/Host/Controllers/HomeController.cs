@@ -22,8 +22,8 @@ namespace Host.Controllers
             return View();
         }
 
-        [ClaimAuthorize(ClaimTypes.GroupSid, "S-1-5-11")]
-        [ClaimAuthorize(ClaimTypes.GroupSid, "S-1-5-15")]
+        [GroupAuthorize(Name = "Test1")]
+        [GroupAuthorize(Sid = "S-1-5-15")]
         public ActionResult Contact()
         {
             ViewBag.Message = "Your contact page.";
