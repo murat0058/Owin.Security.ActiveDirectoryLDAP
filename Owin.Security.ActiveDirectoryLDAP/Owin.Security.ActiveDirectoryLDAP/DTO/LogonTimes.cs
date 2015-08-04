@@ -82,10 +82,10 @@ namespace Owin.Security.ActiveDirectoryLDAP
             return logonTimes;
         }
 
-        public static Group FromClaim(Claim claim)
+        public static LogonTimes FromClaim(Claim claim)
         {
             //return null instead of throwing?
-            if (claim.Type != ClaimTypesAD.ActiveDirectoryGroup)
+            if (claim.Type != ClaimTypesAD.PermittedLogonTimes)
                 throw new ArgumentException("Invalid claim type.", "claim");
             //not a great thing to do
             if (claim.Value.StartsWith("{"))
@@ -95,21 +95,21 @@ namespace Owin.Security.ActiveDirectoryLDAP
             throw new FormatException("Claim value format could not be detected.");
         }
 
-        public static Group FromJson(string json)
+        public static LogonTimes FromJson(string json)
         {
             using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(json)))
             {
                 stream.Position = 0;
-                return new DataContractJsonSerializer(typeof(Group)).ReadObject(stream) as Group;
+                return new DataContractJsonSerializer(typeof(LogonTimes)).ReadObject(stream) as LogonTimes;
             }
         }
 
-        public static Group FromXml(string xml)
+        public static LogonTimes FromXml(string xml)
         {
             using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(xml)))
             {
                 stream.Position = 0;
-                return new DataContractSerializer(typeof(Group)).ReadObject(stream) as Group;
+                return new DataContractSerializer(typeof(LogonTimes)).ReadObject(stream) as LogonTimes;
             }
         }
 
@@ -125,7 +125,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
         {
             using (var stream = new MemoryStream())
             {
-                new DataContractJsonSerializer(typeof(Group)).WriteObject(stream, this);
+                new DataContractJsonSerializer(typeof(LogonTimes)).WriteObject(stream, this);
                 return Encoding.UTF8.GetString(stream.ToArray());
             }
         }
@@ -134,7 +134,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
         {
             using (var stream = new MemoryStream())
             {
-                new DataContractSerializer(typeof(Group)).WriteObject(stream, this);
+                new DataContractSerializer(typeof(LogonTimes)).WriteObject(stream, this);
                 return Encoding.UTF8.GetString(stream.ToArray());
             }
         }

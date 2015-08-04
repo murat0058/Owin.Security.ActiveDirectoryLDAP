@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Security.Claims;
 using Microsoft.AspNet.Identity;
 using Microsoft.Owin;
 using Microsoft.Owin.Security.Cookies;
@@ -23,7 +25,7 @@ namespace Host
                 Provider = new CookieAuthenticationProvider
                 {
                     //TODO: Can we somehow access the domains from options or generate this from options instead of needing the list in both places?
-                    OnValidateIdentity = LDAPAuthenticationProvider.OnValidateIdentity(MvcApplication.DomainCredentials, TimeSpan.FromMinutes(1))//15mins
+                    OnValidateIdentity = LDAPAuthenticationProvider.OnValidateIdentity(TimeSpan.FromMinutes(1))//15mins
                 }
             });
 
@@ -31,7 +33,10 @@ namespace Host
 
             app.UseLDAPAuthentication(new LDAPAuthenticationOptions
             {
-                Domains = MvcApplication.DomainCredentials,
+                //Domains = Owin.Security.ActiveDirectoryLDAP.TEST.DomainCredentials,
+                ClaimTypes = new List<string> {
+                    ClaimTypes.Email
+                },
                 LoginPath = new PathString("/Account/Login"),
                 //AuthenticationMode = AuthenticationMode.Passive,
                 //SignInAsAuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,//This or SetDefaultSignInAsAuthenticationType required if no RedirectPath specified. (i.e. interally set application cookie)

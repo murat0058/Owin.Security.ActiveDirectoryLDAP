@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Owin.Security.ActiveDirecto
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Host", "Host\Host.csproj", "{B31A6CF2-4433-4376-9221-83EFD7C5B033}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Security.ClaimAttributes", "Security.ClaimAttributes\Security.ClaimAttributes.csproj", "{F182A7EA-A9A5-41D9-8C83-89085116CF42}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,10 +27,6 @@ Global
 		{B31A6CF2-4433-4376-9221-83EFD7C5B033}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B31A6CF2-4433-4376-9221-83EFD7C5B033}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B31A6CF2-4433-4376-9221-83EFD7C5B033}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F182A7EA-A9A5-41D9-8C83-89085116CF42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F182A7EA-A9A5-41D9-8C83-89085116CF42}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F182A7EA-A9A5-41D9-8C83-89085116CF42}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F182A7EA-A9A5-41D9-8C83-89085116CF42}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

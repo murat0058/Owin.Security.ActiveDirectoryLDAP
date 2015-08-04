@@ -246,7 +246,9 @@ namespace Owin.Security.ActiveDirectoryLDAP
         private bool TryValidateCredentials(string domain, string username, string password, out ClaimsIdentity identity)
         {
             identity = null;
-            if (String.IsNullOrEmpty(username) ||
+
+            if (String.IsNullOrEmpty(domain) ||
+                String.IsNullOrEmpty(username) ||
                 String.IsNullOrEmpty(password))
                 return false;
 
@@ -255,18 +257,9 @@ namespace Owin.Security.ActiveDirectoryLDAP
                 //Create the context with the users credentials or with "application" credentials?
                 using (var context = Options.GetContext(domain))
                 {
-                    var account = domain + "\\" + username;
+                    var account = domain + @"\" + username;
                     if (context == null || !context.ValidateCredentials(account, password, context.Options))
                         return false;
-
-                    //Lookup and statically store security group name/sid/etc at owin startup time (or with a method)?
-                    //If we use an attribute to determine the group(s) a controller method uses, then it would require a code change (and thus restart), so it should work fine.
-                    //Or would it be better to cache groups as they are found by the user?
-                    //using (var group = new GroupPrincipal(context) { IsSecurityGroup = true })
-                    //using (var search = new PrincipalSearcher(group))
-                    //{
-                    //    var test = search.FindAll();
-                    //}
 
                     using (var user = UserPrincipal.FindByIdentity(context, IdentityType.SamAccountName, account))//On refresh lookup by Sid?/Guid IdentityType.Guid
                     {
@@ -280,7 +273,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
                             return false;
 
                         //claim issuer? "AD AUTHORITY"? context.ConnectedServer?
-                        identity = user.GetClaimsIdentity(Options.AuthenticationType, domain, issuer: "AD AUTHORITY", serializationFormat: Options.SerializationFormat);
+                        identity = user.GetClaimsIdentity(Options.AuthenticationType, Options.ClaimTypes, domain, issuer: "AD AUTHORITY", serializationFormat: Options.SerializationFormat);
                         return true;
                     }
                 }

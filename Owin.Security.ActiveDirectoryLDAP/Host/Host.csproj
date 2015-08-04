@@ -207,10 +207,6 @@
       <Project>{5e604ca5-78d9-4cf1-abab-b89fecd41cb5}</Project>
       <Name>Owin.Security.ActiveDirectoryLDAP</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Security.ClaimAttributes\Security.ClaimAttributes.csproj">
-      <Project>{f182a7ea-a9a5-41d9-8c83-89085116cf42}</Project>
-      <Name>Security.ClaimAttributes</Name>
-    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

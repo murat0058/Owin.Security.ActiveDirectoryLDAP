@@ -2,8 +2,10 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.DirectoryServices.AccountManagement;
 using System.Linq;
+using System.Security.Claims;
 using System.Web.Helpers;
 using Microsoft.Owin;
 using Microsoft.Owin.Security;
@@ -21,13 +23,26 @@ namespace Owin.Security.ActiveDirectoryLDAP
             AuthenticationMode = AuthenticationMode.Active;
             CallbackPath = new PathString("/signin-activedirectoryldap");
             Caption = LDAPAuthenticationDefaults.Caption;
+            ClaimTypes = new List<string>();//defaults?
             DomainKey = LDAPAuthenticationDefaults.DomainKey;
-            Domains = new List<DomainCredential>();
+            //Domains = new List<DomainCredential>();
             PasswordKey = LDAPAuthenticationDefaults.PasswordKey;
             ReturnUrlParameter = LDAPAuthenticationDefaults.ReturnUrlParameter;
             StateKey = LDAPAuthenticationDefaults.StateKey;
             UsernameKey = LDAPAuthenticationDefaults.UsernameKey;
             ValidateAntiForgeryToken = true;
+
+            RequiredClaims = new ReadOnlyCollection<string>(new List<string>
+            {
+                AntiForgeryConfig.UniqueClaimTypeIdentifier,
+                ClaimsIdentity.DefaultNameClaimType,
+                ClaimsIdentity.DefaultRoleClaimType,
+                ClaimTypesAD.DisplayName,
+                ClaimTypesAD.Domain,
+                ClaimTypesAD.Guid,
+                System.Security.Claims.ClaimTypes.NameIdentifier,
+                System.Security.Claims.ClaimTypes.PrimarySid
+            });
         }
 
         /// <summary>
@@ -51,13 +66,17 @@ namespace Owin.Security.ActiveDirectoryLDAP
             set { Description.Caption = value; }
         }
         /// <summary>
+        /// The types of optional claims wanted in the claims identity.
+        /// </summary>
+        public IList<string> ClaimTypes { get; set; }
+        /// <summary>
         /// The form input name of the domain field; used if no domain is included with the username.
         /// </summary>
         public string DomainKey { get; set; }
-        /// <summary>
-        /// A list of active directory domain credentials for LDAP connections.
-        /// </summary>
-        public IList<DomainCredential> Domains { get; set; }
+        ///// <summary>
+        ///// A list of active directory domain credentials for LDAP connections.
+        ///// </summary>
+        //public IList<DomainCredential> Domains { get; set; }
         /// <summary>
         /// A function delegate for getting the form token value from somewhere other than the POST body (e.g. headers).
         /// </summary>
@@ -114,11 +133,15 @@ namespace Owin.Security.ActiveDirectoryLDAP
         /// <summary>
         /// A function delegate for deciding if a UserPrincipal is allowed to be authenticated.
         /// </summary>
-        public Func<UserPrincipal, bool> ValidUser { get; set; }
+        public Func<UserPrincipal, bool> ValidUser { get; set; } //TODO: Should we be allowing this at all, or leave it entirely to AD?
+        /// <summary>
+        /// Claims that are required in the claims identity for normal operation.
+        /// </summary>
+        public IReadOnlyCollection<string> RequiredClaims { get; private set; }
 
         internal PrincipalContext GetContext(string domain)
         {
-            var credentials = Domains.Where(_ => !String.IsNullOrEmpty(_.Name)).FirstOrDefault(_ => _.Name.Equals(domain, StringComparison.OrdinalIgnoreCase));
+            var credentials = Owin.Security.ActiveDirectoryLDAP.TEST.DomainCredentials.Where(_ => !String.IsNullOrEmpty(_.NetBIOS)).FirstOrDefault(_ => _.NetBIOS.Equals(domain, StringComparison.OrdinalIgnoreCase));
             if (credentials == null)
                 return null;
             return credentials.GetContext();

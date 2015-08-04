@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Security.Claims;
 using System.Web.Mvc;
-using Security.ClaimAttributes.Mvc;
 
 namespace Host.Controllers
 {
@@ -22,8 +21,7 @@ namespace Host.Controllers
             return View();
         }
 
-        [GroupAuthorize(Name = "Test1")]
-        [GroupAuthorize(Sid = "S-1-5-15")]
+        [Authorize(Roles = @"DOMAIN\group")]
         public ActionResult Contact()
         {
             ViewBag.Message = "Your contact page.";

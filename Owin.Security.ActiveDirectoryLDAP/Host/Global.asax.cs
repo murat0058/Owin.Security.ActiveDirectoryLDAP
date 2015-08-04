@@ -33,7 +33,7 @@ namespace Host
                     foreach (ConnectionStringSettings connection in ConfigurationManager.ConnectionStrings)
                     {
                         if (connection.ProviderName == "ActiveDirectoryLDAP")
-                            s_DomainCredentials.Add(new DomainCredential(connection.Name, connection.ConnectionString));
+                            s_DomainCredentials.Add(new DomainCredential(connection.ConnectionString));
                     }
                 }
                 return s_DomainCredentials;

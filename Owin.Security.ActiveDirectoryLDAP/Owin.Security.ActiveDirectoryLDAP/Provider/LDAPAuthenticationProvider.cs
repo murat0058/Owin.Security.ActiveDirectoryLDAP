@@ -72,7 +72,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
         }
 
         //Put this someplace else?
-        public static Func<CookieValidateIdentityContext, Task> OnValidateIdentity(IList<DomainCredential> domains, TimeSpan validateInterval, Func<UserPrincipal, bool> validUser = null, bool checkSid = true)
+        public static Func<CookieValidateIdentityContext, Task> OnValidateIdentity(TimeSpan validateInterval, Func<UserPrincipal, bool> validUser = null, bool checkSid = true)
         {
             return (Func<CookieValidateIdentityContext, Task>)(async cookie =>
             {
@@ -93,15 +93,15 @@ namespace Owin.Security.ActiveDirectoryLDAP
 
                 // we need to revalidate the claim... need the current user information.
                 var identity = cookie.Identity;
-                var userGuid = identity.GetUserGuid();
+                var userGuid = identity.GetGuid();
                 if (userGuid == null)//This is an anonymous claim?
                     return;
 
                 // we've got a user, but it may now be invalid...
                 identity = await Task.Run(() =>
                 {
-                    var domain = identity.GetUserDomain();
-                    var credentials = domains.Where(_ => !String.IsNullOrEmpty(_.Name)).FirstOrDefault(_ => _.Name.Equals(domain, StringComparison.OrdinalIgnoreCase));
+                    var domain = identity.GetDomain();
+                    var credentials = Owin.Security.ActiveDirectoryLDAP.TEST.DomainCredentials.Where(_ => !String.IsNullOrEmpty(_.NetBIOS)).FirstOrDefault(_ => _.NetBIOS.Equals(domain, StringComparison.OrdinalIgnoreCase));
                     if (credentials == null)//No credentials for the users claimed domain, they cannot be revalidated.
                         return default(ClaimsIdentity);
 
@@ -112,24 +112,32 @@ namespace Owin.Security.ActiveDirectoryLDAP
                         {
                             if (user != null)
                             {
-                                //SecurityStamp?
+                                //SecurityStamp? 
                                 var isValid = validUser != null
                                             ? validUser(user)
-                                            : user.IsValid(checkSid ? identity.GetUserSid() : null);
+                                            : user.IsValid(checkSid ? identity.GetSid() : null);
 
                                 if (isValid)
                                 {
+                                    //TODO: This belongs in a claim refresh method on the user
                                     //TODO: _Really_ not sure about this. Update old types with new values, keep old types without new values.
-                                    var oldClaims = identity.Claims.ToList();
-                                    var oldClaimTypes = oldClaims.Select(_ => _.Type).ToList();
-                                    var newClaims = user.GetClaims().Where(_ => oldClaimTypes.Contains(_.Type)).ToList();
-                                    var newClaimTypes = newClaims.Select(_ => _.Type).ToList();
-                                    foreach (var oldClaim in oldClaims.Where(_ => !newClaimTypes.Contains(_.Type)))
-                                    {
-                                        newClaims.Add(oldClaim);
-                                    }
+                                    //var oldClaims = identity.Claims.ToList();
+                                    //var oldClaimTypes = oldClaims.Select(_ => _.Type).Distinct().ToList();
+                                    //var newClaims = user.GetClaims(oldClaimTypes);
+                                    //var newClaimTypes = newClaims.Select(_ => _.Type).Distinct().ToList();
+                                    //TODO: Not sure we should be carrying over old claims at all.
+                                    //foreach (var oldClaim in oldClaims.Where(_ => !newClaimTypes.Contains(_.Type)))
+                                    //{
+                                    //    newClaims.Add(oldClaim);
+                                    //}
 
-                                    identity = new ClaimsIdentity(newClaims, identity.AuthenticationType);
+                                    var account = domain.ToUpperInvariant() + @"\" + user.SamAccountName.ToLowerInvariant();//TODO: Get domain from user.DistinguishedName instead of using the old one? It probably doesn't matter, I don't think we would be able to re-auth them if they have changed domains (or if it's even possible while keeping the same guid).
+                                    var oldClaimTypes = identity.Claims.Select(_ => _.Type).Distinct().ToList();
+
+                                    identity = new ClaimsIdentity(identity.AuthenticationType, ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
+                                    identity.AddClaim(new Claim(ClaimTypesAD.Domain, domain, ClaimValueTypes.String));//do we need this?
+                                    identity.AddClaim(new Claim(ClaimsIdentity.DefaultNameClaimType, account));
+                                    identity.AddClaims(user.GetClaims(oldClaimTypes));
 
                                     if (identity != null)
                                     {
