@@ -23,13 +23,15 @@ namespace Host.Controllers
         {
             var loginInfo = await AuthenticationManager.GetExternalLoginInfoAsync();
             if (loginInfo == null || loginInfo.ExternalIdentity == null || !loginInfo.ExternalIdentity.IsAuthenticated)
-                return RedirectToAction("Login");
+            {
+                if (Url.IsLocalUrl(returnUrl))
+                    return Redirect(returnUrl);//Put them through the loop again.
+                return RedirectToAction("Login");//Can we carry over the state somehow instead?
+            }
 
             AuthenticationManager.SignOut(DefaultAuthenticationTypes.ExternalCookie);
             AuthenticationManager.SignIn(new ClaimsIdentity(loginInfo.ExternalIdentity.Claims, DefaultAuthenticationTypes.ApplicationCookie));
-
-            var redirectUrl = Url.IsLocalUrl(returnUrl) ? returnUrl : "/";
-            return Redirect(redirectUrl);
+            return Redirect(Url.IsLocalUrl(returnUrl) ? returnUrl : "/");
         }
 
         public ActionResult Login()

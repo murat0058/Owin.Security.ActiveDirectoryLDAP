@@ -64,7 +64,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
                 Request.PathBase;
 
             var currentUri =
-                baseUri +
+                //baseUri +
                 Request.Path +
                 Request.QueryString;
 
@@ -110,6 +110,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
         protected override async Task<AuthenticationTicket> AuthenticateCoreAsync()
         {
             //Redirect back to login if fail beyond this point?
+            //Why is this called on every request instead of just requests to our post target?
 
             if (String.Equals(Request.Method, "POST", StringComparison.OrdinalIgnoreCase)
                 && !String.IsNullOrWhiteSpace(Request.ContentType)
