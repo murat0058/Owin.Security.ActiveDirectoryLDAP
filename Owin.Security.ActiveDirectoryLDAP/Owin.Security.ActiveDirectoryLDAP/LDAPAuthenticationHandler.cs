@@ -29,7 +29,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
             if (old.Length == 2)
                 return new ADLogin { Domain = old[0], Username = old[1] };
             else if (upn.Length == 2)
-                return new ADLogin { Domain = old[1], Username = old[0] };
+                return new ADLogin { Domain = upn[1], Username = upn[0] };
             else
                 return new ADLogin { Username = username };
         }
