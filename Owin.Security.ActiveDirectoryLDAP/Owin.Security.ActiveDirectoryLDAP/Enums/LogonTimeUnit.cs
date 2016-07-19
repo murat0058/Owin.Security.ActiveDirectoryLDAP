@@ -2,7 +2,7 @@
 
 namespace Owin.Security.ActiveDirectoryLDAP
 {
-    public enum LogonTimeUnit : short
+    public enum LogonTimeUnit
     {
         Days,
         Hours,

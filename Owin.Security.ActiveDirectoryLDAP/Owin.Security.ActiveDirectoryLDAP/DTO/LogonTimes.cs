@@ -37,7 +37,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
             Times.Add(logonTime);
         }
 
-        public void Add(DayOfWeek dayOfWeek, LogonTimeUnit unit, uint startPeriod)
+        public void Add(DayOfWeek dayOfWeek, LogonTimeUnit unit, int startPeriod)
         {
             Times.Add(new LogonTime(dayOfWeek, unit, startPeriod));
         }
@@ -75,7 +75,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
                 for (var j = 0; j < 24; j++)
                 {
                     if ((bits & 1 << j) > 0)
-                        logonTimes.Add(day, LogonTimeUnit.Hours, (uint)j);
+                        logonTimes.Add(day, LogonTimeUnit.Hours, (int)(uint)j);
                 }
             }
 
@@ -84,13 +84,16 @@ namespace Owin.Security.ActiveDirectoryLDAP
 
         public static LogonTimes FromClaim(Claim claim)
         {
+            if (claim == null)
+                throw new ArgumentNullException("claim");
+
             //return null instead of throwing?
             if (claim.Type != ClaimTypesAD.PermittedLogonTimes)
                 throw new ArgumentException(Resource.InvalidClaimType, "claim");
             //not a great thing to do
-            if (claim.Value.StartsWith("{"))
+            if (claim.Value.StartsWith("{", StringComparison.Ordinal))
                 return FromJson(claim.Value);
-            if (claim.Value.StartsWith("<"))
+            if (claim.Value.StartsWith("<", StringComparison.Ordinal))
                 return FromXml(claim.Value);
             throw new FormatException(Resource.InvalidClaimValue);
         }
@@ -113,7 +116,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
             }
         }
 
-        public Claim ToClaim(SerializationFormat serializationFormat = SerializationFormat.Json)
+        public Claim ToClaim(SerializationFormat serializationFormat)
         {
             var serialized = serializationFormat == SerializationFormat.Json
                 ? this.ToJson()
@@ -157,9 +160,9 @@ namespace Owin.Security.ActiveDirectoryLDAP
         /// The minutes after midnight when the logon period starts.
         /// </summary>
         [DataMember]
-        public uint StartMinutes { get; private set; }
+        public int StartMinutes { get; private set; }
 
-        public LogonTime(DayOfWeek dayOfWeek, LogonTimeUnit unit, uint startPeriod)
+        public LogonTime(DayOfWeek dayOfWeek, LogonTimeUnit unit, int startPeriod)
         {
             if (unit == LogonTimeUnit.Days && startPeriod > 0)//Just ignore it?
                 throw new ArgumentOutOfRangeException("startPeriod", Resource.DayMidnight);

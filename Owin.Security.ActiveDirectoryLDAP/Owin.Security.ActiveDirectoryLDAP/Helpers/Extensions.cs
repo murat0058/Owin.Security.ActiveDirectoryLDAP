@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.DirectoryServices.AccountManagement;
+using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
@@ -11,6 +12,9 @@ namespace Owin.Security.ActiveDirectoryLDAP
     {
         public static Guid GetGuid(this ClaimsIdentity identity)
         {
+            if (identity == null)
+                throw new ArgumentNullException("identity");
+
             var claim = identity.Claims.SingleOrDefault(_ => _.Type == ClaimTypes.NameIdentifier);
             if (claim == null)
                 return default(Guid);
@@ -19,6 +23,9 @@ namespace Owin.Security.ActiveDirectoryLDAP
 
         public static SecurityIdentifier GetSid(this ClaimsIdentity identity)
         {
+            if (identity == null)
+                throw new ArgumentNullException("identity");
+
             var claim = identity.Claims.SingleOrDefault(_ => _.Type == ClaimTypes.PrimarySid);
             if (claim == null)
                 return default(SecurityIdentifier);
@@ -27,6 +34,9 @@ namespace Owin.Security.ActiveDirectoryLDAP
 
         public static string GetDomain(this ClaimsIdentity identity)
         {
+            if (identity == null)
+                throw new ArgumentNullException("identity");
+
             var claim = identity.Claims.SingleOrDefault(_ => _.Type == ClaimTypesAD.Domain);
             if (claim == null)
                 return default(string);
@@ -35,6 +45,9 @@ namespace Owin.Security.ActiveDirectoryLDAP
 
         public static string GetDisplayName(this ClaimsIdentity identity)
         {
+            if (identity == null)
+                throw new ArgumentNullException("identity");
+
             var claim = identity.Claims.SingleOrDefault(_ => _.Type == ClaimTypesAD.DisplayName);
             if (claim == null)
                 return default(string);
@@ -48,6 +61,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
             return true;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
         internal static IList<Claim> GetClaims(this UserPrincipal user, IList<string> claimTypes, SerializationFormat serializationFormat = SerializationFormat.Json)
         {
             claimTypes = claimTypes ?? new List<string>();
@@ -73,9 +87,9 @@ namespace Owin.Security.ActiveDirectoryLDAP
 
             claims = claims.Union(securityGroups.Select(_ => {
                 //TODO: Need a better way to get netbios domain from DistinguishedName
-                var domain = Owin.Security.ActiveDirectoryLDAP.TEST.DomainCredentials.FirstOrDefault(d => _ != null && !String.IsNullOrEmpty(_.DistinguishedName) && _.DistinguishedName.EndsWith(d.Container, StringComparison.OrdinalIgnoreCase));
+                var domain = Owin.Security.ActiveDirectoryLDAP.DomainCredentialConfig.DomainCredentials.FirstOrDefault(d => _ != null && !String.IsNullOrEmpty(_.DistinguishedName) && _.DistinguishedName.EndsWith(d.Container, StringComparison.OrdinalIgnoreCase));
                 if (domain != null)
-                    return new Claim(ClaimsIdentity.DefaultRoleClaimType, domain.NetBIOS + @"\" + _.SamAccountName);
+                    return new Claim(ClaimsIdentity.DefaultRoleClaimType, String.Format(CultureInfo.InvariantCulture, @"{0}\{1}", domain.NetBIOS, _.SamAccountName), ClaimValueTypes.String);
                 return null;
             }).Where(_ => _ != null)).ToList();//will these always be security groups?
 
@@ -87,7 +101,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
             if (claimTypes.Contains(ClaimTypes.GroupSid) && securityGroups.Any())
                 claims.AddRange(securityGroups.Select(_ => new Claim(ClaimTypes.GroupSid, _.Sid.Value, ClaimValueTypes.Sid)));// Union?
             if (claimTypes.Contains(ClaimTypesAD.BadLogonCount))
-                claims.Add(new Claim(ClaimTypesAD.BadLogonCount, user.BadLogonCount.ToString(), ClaimValueTypes.Integer32));//can this be set via a webapp? part of ValidateCredentials?
+                claims.Add(new Claim(ClaimTypesAD.BadLogonCount, user.BadLogonCount.ToString(CultureInfo.InvariantCulture), ClaimValueTypes.Integer32));//can this be set via a webapp? part of ValidateCredentials?
             if (claimTypes.Contains(ClaimTypesAD.Enabled)/* && user.Enabled.HasValue*/)
                 claims.Add(new Claim(ClaimTypesAD.Enabled, (user.Enabled ?? false).ToString(), ClaimValueTypes.Boolean));//default? is a null value considered disabled?
             if (claimTypes.Contains(ClaimTypesAD.LockedOut))
@@ -136,6 +150,8 @@ namespace Owin.Security.ActiveDirectoryLDAP
             return claims;
         }
 
+        //TODO: Handle issuer.
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase", Justification = @"The generally used form is DOMAIN\username.")]
         internal static ClaimsIdentity GetClaimsIdentity(this UserPrincipal user, string authenticationType, IList<string> claimTypes, string domain, string issuer = null, SerializationFormat serializationFormat = SerializationFormat.Json)
         {
             if (user == null)
@@ -149,7 +165,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
 
             var identity = new ClaimsIdentity(authenticationType, ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
             identity.AddClaim(new Claim(ClaimTypesAD.Domain, domain, ClaimValueTypes.String));//do we need this?
-            identity.AddClaim(new Claim(ClaimsIdentity.DefaultNameClaimType, domain.ToUpperInvariant() + @"\" + user.SamAccountName.ToLowerInvariant()));//move to getclaims?
+            identity.AddClaim(new Claim(ClaimsIdentity.DefaultNameClaimType, String.Format(CultureInfo.InvariantCulture, @"{0}\{1}", domain.ToUpperInvariant(), user.SamAccountName.ToLowerInvariant()), ClaimValueTypes.String));//move to getclaims?
             identity.AddClaims(user.GetClaims(claimTypes, serializationFormat));
 
             return identity;
@@ -158,7 +174,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
         private static string RoundTripString(this DateTime? dateTime)
         {
             return dateTime.HasValue
-                ? dateTime.Value.ToString("o")//DateTimeStyles.RoundtripKind, so it can be parsed back out easily.
+                ? dateTime.Value.ToString("o", CultureInfo.InvariantCulture)//DateTimeStyles.RoundtripKind, so it can be parsed back out easily.
                 : default(string);
         }
     }

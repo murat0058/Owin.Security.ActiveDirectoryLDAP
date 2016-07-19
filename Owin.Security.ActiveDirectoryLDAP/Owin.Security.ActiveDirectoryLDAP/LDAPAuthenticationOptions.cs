@@ -15,6 +15,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
     public class LDAPAuthenticationOptions : AuthenticationOptions
     {
         //TODO: Include/exclude lists for claims?
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "Owin.Security.ActiveDirectoryLDAP.LDAPAuthenticationOptions.set_Caption(System.String)")]
         public LDAPAuthenticationOptions()
             : base(LDAPAuthenticationDefaults.AuthenticationType)
         {
@@ -68,6 +69,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
         /// <summary>
         /// The types of optional claims wanted in the claims identity.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Being able to overwrite the whole claims type list at once is desired behavior.")]
         public IList<string> ClaimTypes { get; set; }
         /// <summary>
         /// The form input name of the domain field; used if no domain is included with the username.
@@ -101,6 +103,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
         /// The ReturnUrlParameter determines the name of the query string parameter which is appended by the middleware
         /// to the RedirectPath if local authentication is being performed externally to the middleware.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1056:UriPropertiesShouldNotBeStrings", Justification = "This is a parameter name, not a Uri.")]
         public string ReturnUrlParameter { get; set; }
         /// <summary>
         /// The serialization format to use in claims.
@@ -138,13 +141,5 @@ namespace Owin.Security.ActiveDirectoryLDAP
         /// Claims that are required in the claims identity for normal operation.
         /// </summary>
         public IReadOnlyCollection<string> RequiredClaims { get; private set; }
-
-        internal PrincipalContext GetContext(string domain)
-        {
-            var credentials = Owin.Security.ActiveDirectoryLDAP.TEST.DomainCredentials.Where(_ => !String.IsNullOrEmpty(_.NetBIOS)).FirstOrDefault(_ => _.NetBIOS.Equals(domain, StringComparison.OrdinalIgnoreCase));
-            if (credentials == null)
-                return null;
-            return credentials.GetContext();
-        }
     }
 }

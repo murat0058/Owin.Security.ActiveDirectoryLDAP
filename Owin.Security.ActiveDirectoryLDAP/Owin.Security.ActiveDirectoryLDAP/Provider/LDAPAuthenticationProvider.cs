@@ -1,8 +1,8 @@
 ﻿// Per the Apache License, Section 4b, this file has been modified from its original version for use in this library.
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 using System;
-using System.Collections.Generic;
 using System.DirectoryServices.AccountManagement;
+using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -24,7 +24,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
             OnAuthenticated = context => Task.FromResult<object>(null);
             OnReturnEndpoint = context => Task.FromResult<object>(null);
             OnApplyRedirect = context =>
-                context.Response.Redirect(context.RedirectUri);
+                context.Response.Redirect(context.RedirectUri.AbsoluteUri);
         }
 
         /// <summary>
@@ -71,8 +71,18 @@ namespace Owin.Security.ActiveDirectoryLDAP
             OnApplyRedirect(context);
         }
 
-        //Put this someplace else?
-        public static Func<CookieValidateIdentityContext, Task> OnValidateIdentity(TimeSpan validateInterval, Func<UserPrincipal, bool> validUser = null, bool checkSid = true)
+        //Put these someplace else?
+        public static Func<CookieValidateIdentityContext, Task> OnValidateIdentity(TimeSpan validateInterval)
+        {
+            return OnValidateIdentity(validateInterval, null, true);
+        }
+
+        public static Func<CookieValidateIdentityContext, Task> OnValidateIdentity(TimeSpan validateInterval, Func<UserPrincipal, bool> validUser)
+        {
+            return OnValidateIdentity(validateInterval, validUser, true);
+        }
+
+        public static Func<CookieValidateIdentityContext, Task> OnValidateIdentity(TimeSpan validateInterval, Func<UserPrincipal, bool> validUser, bool checkSid)
         {
             return (Func<CookieValidateIdentityContext, Task>)(async cookie =>
             {
@@ -101,7 +111,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
                 identity = await Task.Run(() =>
                 {
                     var domain = identity.GetDomain();
-                    var credentials = Owin.Security.ActiveDirectoryLDAP.TEST.DomainCredentials.Where(_ => !String.IsNullOrEmpty(_.NetBIOS)).FirstOrDefault(_ => _.NetBIOS.Equals(domain, StringComparison.OrdinalIgnoreCase));
+                    var credentials = Owin.Security.ActiveDirectoryLDAP.DomainCredentialConfig.DomainCredentials.Where(_ => !String.IsNullOrEmpty(_.NetBIOS)).FirstOrDefault(_ => _.NetBIOS.Equals(domain, StringComparison.OrdinalIgnoreCase));
                     if (credentials == null)//No credentials for the users claimed domain, they cannot be revalidated.
                         return default(ClaimsIdentity);
 
@@ -112,7 +122,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
                         {
                             if (user != null)
                             {
-                                //SecurityStamp? 
+                                //SecurityStamp?
                                 var isValid = validUser != null
                                             ? validUser(user)
                                             : user.IsValid(checkSid ? identity.GetSid() : null);
@@ -131,7 +141,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
                                     //    newClaims.Add(oldClaim);
                                     //}
 
-                                    var account = domain.ToUpperInvariant() + @"\" + user.SamAccountName.ToLowerInvariant();//TODO: Get domain from user.DistinguishedName instead of using the old one? It probably doesn't matter, I don't think we would be able to re-auth them if they have changed domains (or if it's even possible while keeping the same guid).
+                                    var account = String.Format(CultureInfo.InvariantCulture, @"{0}\{1}", domain.ToUpperInvariant(), user.SamAccountName.ToLowerInvariant());//TODO: Get domain from user.DistinguishedName instead of using the old one? It probably doesn't matter, I don't think we would be able to re-auth them if they have changed domains (or if it's even possible while keeping the same guid).
                                     var oldClaimTypes = identity.Claims.Select(_ => _.Type).Distinct().ToList();
 
                                     identity = new ClaimsIdentity(identity.AuthenticationType, ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
@@ -167,11 +177,11 @@ namespace Owin.Security.ActiveDirectoryLDAP
                             }
                         }
                     }
-                    catch (PrincipalServerDownException ex)
+                    catch (PrincipalServerDownException)
                     {
                         //We should emit the fact that this happened someplace. raise an event to something?
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                     }
 

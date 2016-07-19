@@ -1,5 +1,6 @@
 ﻿// Per the Apache License, Section 4b, this file has been modified from its original version for use in this library.
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
+using System;
 using Microsoft.Owin;
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.Provider;
@@ -18,8 +19,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
         /// <param name="options">The Facebook middleware options</param>
         /// <param name="properties">The authenticaiton properties of the challenge</param>
         /// <param name="redirectUri">The initial redirect URI</param>
-        public LDAPApplyRedirectContext(IOwinContext context, LDAPAuthenticationOptions options,
-            AuthenticationProperties properties, string redirectUri)
+        public LDAPApplyRedirectContext(IOwinContext context, LDAPAuthenticationOptions options, AuthenticationProperties properties, Uri redirectUri)
             : base(context, options)
         {
             RedirectUri = redirectUri;
@@ -29,7 +29,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
         /// <summary>
         /// Gets the URI used for the redirect operation.
         /// </summary>
-        public string RedirectUri { get; private set; }
+        public Uri RedirectUri { get; private set; }
 
         /// <summary>
         /// Gets the authenticaiton properties of the challenge

@@ -12,9 +12,16 @@ namespace Owin.Security.ActiveDirectoryLDAP
 {
     public class LDAPAuthenticationMiddleware : AuthenticationMiddleware<LDAPAuthenticationOptions>
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2208:InstantiateArgumentExceptionsCorrectly", Justification = "The arguments come from the options object; probably needs a better exception but I'm not sure what to use.")]
         public LDAPAuthenticationMiddleware(OwinMiddleware next, IAppBuilder app, LDAPAuthenticationOptions options)
             : base(next, options)
         {
+            if (next == null)
+                throw new ArgumentNullException("next");
+            if (app == null)
+                throw new ArgumentNullException("app");
+            if (options == null)
+                throw new ArgumentNullException("options");
             if (String.IsNullOrWhiteSpace(Options.PasswordKey))
                 throw new ArgumentException(Resource.MissingPasswordKey, "PasswordKey");
             if (String.IsNullOrWhiteSpace(Options.StateKey))

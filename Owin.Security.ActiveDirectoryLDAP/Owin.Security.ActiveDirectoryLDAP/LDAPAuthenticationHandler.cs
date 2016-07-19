@@ -3,6 +3,7 @@
 using System;
 using System.Diagnostics;
 using System.DirectoryServices.AccountManagement;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Security.Claims;
@@ -18,6 +19,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
     internal struct ADLogin
     {
         public string Domain { get; set; }
+
         public string Username { get; set; }
 
         public static ADLogin Parse(string username)
@@ -47,6 +49,8 @@ namespace Owin.Security.ActiveDirectoryLDAP
             return false;
         }
 
+#pragma warning disable 1998
+
         //Should only be hit in active mode.
         protected override async Task ApplyResponseChallengeAsync()
         {
@@ -57,6 +61,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
             if (challenge == null)
                 return;
 
+            //TODO: Change to Uri objects?
             var baseUri =
                 Request.Scheme +
                 Uri.SchemeDelimiter +
@@ -71,7 +76,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
             var loginUri =
                 baseUri +
                 Options.LoginPath;// +
-                //new QueryString(Options.ReturnUrlParameter, currentUri);
+            //new QueryString(Options.ReturnUrlParameter, currentUri);
 
             var redirectUri = Options.RedirectPath.HasValue
                             ? baseUri + Options.RedirectPath + new QueryString(Options.ReturnUrlParameter, currentUri)
@@ -93,9 +98,11 @@ namespace Owin.Security.ActiveDirectoryLDAP
             else
                 authenticationEndpoint = WebUtilities.AddQueryString(loginUri, Options.StateKey, Options.StateDataFormat.Protect(properties));
 
-            var redirectContext = new LDAPApplyRedirectContext(Context, Options, properties, authenticationEndpoint);
+            var redirectContext = new LDAPApplyRedirectContext(Context, Options, properties, new Uri(authenticationEndpoint));
             Options.Provider.ApplyRedirect(redirectContext);
         }
+
+#pragma warning restore 1998
 
         protected override Task ApplyResponseCoreAsync()
         {
@@ -256,9 +263,9 @@ namespace Owin.Security.ActiveDirectoryLDAP
             try
             {
                 //Create the context with the users credentials or with "application" credentials?
-                using (var context = Options.GetContext(domain))
+                using (var context = DomainCredentialConfig.GetContext(domain))
                 {
-                    var account = domain + @"\" + username;
+                    var account = String.Format(CultureInfo.InvariantCulture, @"{0}\{1}", domain, username);
                     if (context == null || !context.ValidateCredentials(account, password, context.Options))
                         return false;
 
@@ -279,15 +286,15 @@ namespace Owin.Security.ActiveDirectoryLDAP
                     }
                 }
             }
-            catch (PrincipalServerDownException ex)
+            catch (PrincipalServerDownException)
             {
-                Debug.WriteLine(ex);//We should emit the fact that this happened someplace. raise an event to something?
+                //We should emit the fact that this happened someplace. raise an event to something?
+                return false;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Debug.WriteLine(ex);
+                return false;
             }
-            return false;
         }
 
         private bool ValidAntiForgeryTokens(IFormCollection form)
@@ -309,7 +316,7 @@ namespace Owin.Security.ActiveDirectoryLDAP
                 AntiForgery.Validate(cookieToken, methodToken);
                 return true;
             }
-            catch (Exception)//System.Web.Helpers.HttpAntiForgeryException
+            catch (System.Web.Mvc.HttpAntiForgeryException)//System.Web.Helpers.HttpAntiForgeryException???
             {
                 return false;
             }

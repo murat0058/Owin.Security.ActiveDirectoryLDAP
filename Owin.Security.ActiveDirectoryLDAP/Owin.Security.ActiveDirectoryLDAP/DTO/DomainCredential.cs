@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.DirectoryServices.AccountManagement;
-using System.Security.Principal;
+using System.Linq;
 
 namespace Owin.Security.ActiveDirectoryLDAP
 {
-    public static class TEST
+    internal static class DomainCredentialConfig
     {
-        private static IList<DomainCredential> s_DomainCredentials { get; set; }
         public static IList<DomainCredential> DomainCredentials
         {
             get
@@ -25,12 +24,23 @@ namespace Owin.Security.ActiveDirectoryLDAP
                 return s_DomainCredentials;
             }
         }
+
+        public static PrincipalContext GetContext(string domain)
+        {
+            var credentials = DomainCredentials.Where(_ => !String.IsNullOrEmpty(_.NetBIOS)).FirstOrDefault(_ => _.NetBIOS.Equals(domain, StringComparison.OrdinalIgnoreCase));
+            if (credentials == null)
+                return null;
+            return credentials.GetContext();
+        }
+
+        private static IList<DomainCredential> s_DomainCredentials { get; set; }
     }
 
     public class DomainCredential
     {
         //TODO: Custom config section?
         //TODO: Combine constructors
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2208:InstantiateArgumentExceptionsCorrectly", Justification = "The arguments come from the connection string; probably needs a better exception but I'm not sure what to use.")]
         public DomainCredential(string connectionString)
         {
             //TODO: Custom parser?
@@ -46,11 +56,11 @@ namespace Owin.Security.ActiveDirectoryLDAP
             builder.TryGetValue("SecureConnection", out value[5]);
 
             if (String.IsNullOrWhiteSpace(value[0] as string))
-                throw new ArgumentNullException("netbios");
+                throw new ArgumentNullException("NetBIOS");
             if (String.IsNullOrWhiteSpace(value[1] as string))
-                throw new ArgumentNullException("domain");
+                throw new ArgumentNullException("Domain");
             if (String.IsNullOrWhiteSpace(value[2] as string))
-                throw new ArgumentNullException("container");
+                throw new ArgumentNullException("Container");
 
             NetBIOS = value[0] as string;
             Domain = value[1] as string;
@@ -60,10 +70,25 @@ namespace Owin.Security.ActiveDirectoryLDAP
             SecureConnection = bool.Parse(value[5] as string ?? "False");
         }
 
-        public DomainCredential(string netbios, string domain, string container, string username = null, string password = null, bool secureConnection = false)
+        public DomainCredential(string netBios, string domain, string container)
+            : this(netBios, domain, container, null, null, false)
         {
-            if (String.IsNullOrWhiteSpace(netbios))
-                throw new ArgumentNullException("netbios");
+        }
+
+        public DomainCredential(string netBios, string domain, string container, string username)
+            : this(netBios, domain, container, username, null, false)
+        {
+        }
+
+        public DomainCredential(string netBios, string domain, string container, string username, string password)
+            : this(netBios, domain, container, username, password, false)
+        {
+        }
+
+        public DomainCredential(string netBios, string domain, string container, string username, string password, bool secureConnection)
+        {
+            if (String.IsNullOrWhiteSpace(netBios))
+                throw new ArgumentNullException("netBios");
             if (String.IsNullOrWhiteSpace(domain))
                 throw new ArgumentNullException("domain");
             if (String.IsNullOrWhiteSpace(container))
@@ -71,17 +96,22 @@ namespace Owin.Security.ActiveDirectoryLDAP
 
             Container = container;
             Domain = domain;
-            NetBIOS = netbios;
+            NetBIOS = netBios;
             Password = password;
             SecureConnection = secureConnection;
             Username = username;
         }
 
         public string Container { get; set; }
+
         public string Domain { get; set; }//Strip port number/change SecureConnection based on it?
+
         public string NetBIOS { get; set; }
+
         public string Password { get; set; }
+
         public bool SecureConnection { get; set; }
+
         public string Username { get; set; }
 
         internal ContextOptions ContextOptions
