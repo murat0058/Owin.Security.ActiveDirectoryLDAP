@@ -234,3 +234,7 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+
+# Sensitive Information
+SecureConnections.config
+SecureConnections.*.config
