@@ -16,13 +16,13 @@ namespace Owin.Security.ActiveDirectoryLDAP
             : base(next, options)
         {
             if (String.IsNullOrWhiteSpace(Options.PasswordKey))
-                throw new ArgumentException("Missing required password key.", "PasswordKey");
+                throw new ArgumentException(Resource.MissingPasswordKey, "PasswordKey");
             if (String.IsNullOrWhiteSpace(Options.StateKey))
-                throw new ArgumentException("Missing required state key.", "StateKey");
+                throw new ArgumentException(Resource.MissingStateKey, "StateKey");
             if (String.IsNullOrWhiteSpace(Options.UsernameKey))
-                throw new ArgumentException("Missing required username key.", "UsernameKey");
+                throw new ArgumentException(Resource.MissingUsernameKey, "UsernameKey");
             if (!options.CallbackPath.HasValue || String.IsNullOrWhiteSpace(Options.CallbackPath.Value))
-                throw new ArgumentException("Missing required callback path.", "CallbackPath");
+                throw new ArgumentException(Resource.MissingCallbackPath, "CallbackPath");
 
             if (options.Provider == null)
             {

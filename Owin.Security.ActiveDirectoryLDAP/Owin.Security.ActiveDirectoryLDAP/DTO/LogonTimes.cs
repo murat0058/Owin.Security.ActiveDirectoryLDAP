@@ -86,13 +86,13 @@ namespace Owin.Security.ActiveDirectoryLDAP
         {
             //return null instead of throwing?
             if (claim.Type != ClaimTypesAD.PermittedLogonTimes)
-                throw new ArgumentException("Invalid claim type.", "claim");
+                throw new ArgumentException(Resource.InvalidClaimType, "claim");
             //not a great thing to do
             if (claim.Value.StartsWith("{"))
                 return FromJson(claim.Value);
             if (claim.Value.StartsWith("<"))
                 return FromXml(claim.Value);
-            throw new FormatException("Claim value format could not be detected.");
+            throw new FormatException(Resource.InvalidClaimValue);
         }
 
         public static LogonTimes FromJson(string json)
@@ -162,11 +162,11 @@ namespace Owin.Security.ActiveDirectoryLDAP
         public LogonTime(DayOfWeek dayOfWeek, LogonTimeUnit unit, uint startPeriod)
         {
             if (unit == LogonTimeUnit.Days && startPeriod > 0)//Just ignore it?
-                throw new ArgumentOutOfRangeException("startPeriod", "A day starts at midnight.");
+                throw new ArgumentOutOfRangeException("startPeriod", Resource.DayMidnight);
             if (unit == LogonTimeUnit.Hours && startPeriod > 23)
-                throw new ArgumentOutOfRangeException("startPeriod", "A day only has 24 hours.");
+                throw new ArgumentOutOfRangeException("startPeriod", Resource.DayHours);
             if (unit == LogonTimeUnit.Minutes && startPeriod > 1440)
-                throw new ArgumentOutOfRangeException("startPeriod", "A day only has 1440 minutes.");
+                throw new ArgumentOutOfRangeException("startPeriod", Resource.DayMinutes);
 
             DayOfWeek = dayOfWeek;
 

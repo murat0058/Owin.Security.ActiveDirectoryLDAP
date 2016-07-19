@@ -55,9 +55,9 @@ namespace Owin.Security.ActiveDirectoryLDAP
             if (user == null)
                 throw new ArgumentNullException("user");
             if (user.Guid.HasValue == false)
-                throw new MissingFieldException("UserPrincipal is missing a Guid.");
+                throw new MissingFieldException(Resource.MissingUserPrincipalGuid);
             if (user.Sid == null)
-                throw new MissingFieldException("UserPrincipal is missing a Sid.");
+                throw new MissingFieldException(Resource.MissingUserPrincipalSid);
 
             var claims = new List<Claim>();
 
@@ -141,9 +141,9 @@ namespace Owin.Security.ActiveDirectoryLDAP
             if (user == null)
                 throw new ArgumentNullException("user");
             if (user.Guid.HasValue == false)
-                throw new MissingFieldException("UserPrincipal is missing a Guid.");
+                throw new MissingFieldException(Resource.MissingUserPrincipalGuid);
             if (user.Sid == null)
-                throw new MissingFieldException("UserPrincipal is missing a Sid.");
+                throw new MissingFieldException(Resource.MissingUserPrincipalSid);
 
             //var context = user.Context;
 
